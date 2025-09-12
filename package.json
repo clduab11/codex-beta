@@ -14,7 +14,8 @@
     "lint": "eslint src/**/*.ts",
     "lint:fix": "eslint src/**/*.ts --fix",
     "format": "prettier --write src/**/*.ts",
-    "cli": "ts-node src/cli/index.ts"
+    "cli": "ts-node src/cli/index.ts",
+    "prepare": "npm run build"
   },
   "keywords": [
     "codex",
