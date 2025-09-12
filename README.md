@@ -98,7 +98,35 @@ codex-beta swarm start --algorithm pso --agents worker:5,coordinator:2
 codex-beta swarm start --algorithm aco --agents worker:8,coordinator:1
 ```
 
-### 5. Submit Tasks
+### 5. Hive-Mind Coordination
+
+```bash
+# Spawn a hive-mind for complex tasks with natural language
+codex-beta hive-mind spawn "Create a TypeScript REST API with authentication and database integration" --agents 7 --algorithm pso --fault-tolerance --debug
+
+# Spawn a data analysis hive-mind
+codex-beta hive-mind spawn "Analyze customer feedback and generate sentiment reports" --agents 4 --algorithm aco --auto-scale
+
+# Advanced hive-mind with custom configuration
+codex-beta hive-mind spawn "Build a React dashboard with real-time data visualization" \
+  --agents 10 \
+  --algorithm flocking \
+  --priority 8 \
+  --timeout 600 \
+  --mesh-topology hierarchical \
+  --consensus byzantine \
+  --auto-scale \
+  --fault-tolerance \
+  --debug
+
+# Check hive-mind status
+codex-beta hive-mind status
+
+# Terminate all hive-minds
+codex-beta hive-mind terminate --force
+```
+
+### 6. Submit Tasks
 
 ```bash
 # Submit a code generation task

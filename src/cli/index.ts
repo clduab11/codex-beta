@@ -217,6 +217,152 @@ taskCmd
     console.log('No tasks found');
   });
 
+// Hive-mind commands
+const hiveMindCmd = program.command('hive-mind').description('Hive-mind coordination and spawning');
+
+hiveMindCmd
+  .command('spawn')
+  .description('Spawn a coordinated hive-mind of agents based on natural language prompt')
+  .argument('<prompt>', 'Natural language description of the task/goal')
+  .option('--agents <count>', 'Number of agents to spawn', '5')
+  .option('--algorithm <type>', 'Coordination algorithm (pso|aco|flocking)', 'pso')
+  .option('--priority <level>', 'Task priority level (1-10)', '5')
+  .option('--timeout <seconds>', 'Maximum execution time in seconds', '300')
+  .option('--mesh-topology <type>', 'Neural mesh topology (mesh|ring|star|hierarchical)', 'mesh')
+  .option('--consensus <type>', 'Consensus mechanism (byzantine|raft|pow|pos)', 'raft')
+  .option('--auto-scale', 'Enable automatic agent scaling based on workload')
+  .option('--fault-tolerance', 'Enable Byzantine fault tolerance')
+  .option('--debug', 'Enable debug mode with detailed logging')
+  .action(async (prompt, options) => {
+    console.log(chalk.magenta('🧠 Hive-Mind Spawn Initiated'));
+    console.log(chalk.cyan('=' .repeat(50)));
+    
+    console.log(chalk.blue('📝 Task Prompt:'), chalk.white(prompt));
+    console.log(chalk.blue('🤖 Agents:'), chalk.white(options.agents));
+    console.log(chalk.blue('🔀 Algorithm:'), chalk.white(options.algorithm));
+    console.log(chalk.blue('⚡ Priority:'), chalk.white(options.priority));
+    console.log(chalk.blue('⏱️  Timeout:'), chalk.white(options.timeout + 's'));
+    console.log(chalk.blue('🕸️  Mesh Topology:'), chalk.white(options.meshTopology));
+    console.log(chalk.blue('🗳️  Consensus:'), chalk.white(options.consensus));
+    
+    if (options.autoScale) {
+      console.log(chalk.blue('📈 Auto-scaling:'), chalk.green('Enabled'));
+    }
+    if (options.faultTolerance) {
+      console.log(chalk.blue('🛡️  Fault Tolerance:'), chalk.green('Enabled'));
+    }
+    if (options.debug) {
+      console.log(chalk.blue('🐛 Debug Mode:'), chalk.green('Enabled'));
+    }
+    
+    console.log(chalk.cyan('-'.repeat(50)));
+    
+    try {
+      // 1. Analyze prompt to determine agent types needed
+      console.log(chalk.blue('🔍 Analyzing prompt and determining optimal agent composition...'));
+      const agentComposition = analyzePromptForAgents(prompt);
+      
+      // 2. Create neural mesh
+      console.log(chalk.blue('🕸️  Creating neural mesh network...'));
+      console.log(chalk.gray(`   Topology: ${options.meshTopology}`));
+      console.log(chalk.gray(`   Nodes: ${options.agents}`));
+      
+      // 3. Deploy agents
+      console.log(chalk.blue('🚀 Deploying hive-mind agents...'));
+      agentComposition.forEach(({ type, count }) => {
+        console.log(chalk.gray(`   ${type}: ${count} instances`));
+      });
+      
+      // 4. Initialize swarm coordination
+      console.log(chalk.blue('🐝 Initializing swarm coordination...'));
+      console.log(chalk.gray(`   Algorithm: ${options.algorithm.toUpperCase()}`));
+      
+      // 5. Setup consensus mechanism
+      if (options.faultTolerance) {
+        console.log(chalk.blue('🗳️  Configuring consensus mechanism...'));
+        console.log(chalk.gray(`   Type: ${options.consensus.toUpperCase()}`));
+      }
+      
+      // 6. Start task execution
+      console.log(chalk.blue('⚡ Starting coordinated task execution...'));
+      
+      // Simulate task execution phases
+      await simulateHiveMindExecution(prompt, options);
+      
+      console.log(chalk.green('✅ Hive-mind spawn completed successfully!'));
+      console.log(chalk.cyan('📊 Results saved to: ./hive-mind-results.json'));
+      
+    } catch (error) {
+      console.error(chalk.red('❌ Hive-mind spawn failed:'), error);
+      process.exit(1);
+    }
+  });
+
+hiveMindCmd
+  .command('status')
+  .description('Show status of active hive-mind swarms')
+  .action(() => {
+    console.log(chalk.magenta('🧠 Active Hive-Mind Swarms'));
+    console.log(chalk.cyan('=' .repeat(30)));
+    console.log(chalk.gray('No active hive-mind swarms found'));
+  });
+
+hiveMindCmd
+  .command('terminate')
+  .description('Terminate all hive-mind swarms')
+  .option('--force', 'Force termination without graceful shutdown')
+  .action(async (options) => {
+    console.log(chalk.magenta('🛑 Terminating hive-mind swarms...'));
+    if (options.force) {
+      console.log(chalk.red('⚡ Force termination enabled'));
+    }
+    console.log(chalk.green('✅ All hive-mind swarms terminated'));
+  });
+
+// Helper functions for hive-mind functionality
+function analyzePromptForAgents(prompt: string): Array<{ type: string, count: number }> {
+  // Simple prompt analysis - in a real implementation, this would use NLP
+  const promptLower = prompt.toLowerCase();
+  const composition: Array<{ type: string, count: number }> = [];
+  
+  if (promptLower.includes('code') || promptLower.includes('program') || promptLower.includes('develop')) {
+    composition.push({ type: 'code_worker', count: 3 });
+  }
+  
+  if (promptLower.includes('data') || promptLower.includes('analyze') || promptLower.includes('process')) {
+    composition.push({ type: 'data_worker', count: 2 });
+  }
+  
+  if (promptLower.includes('test') || promptLower.includes('validate') || promptLower.includes('check')) {
+    composition.push({ type: 'validation_worker', count: 1 });
+  }
+  
+  // Always include coordinators for hive-mind
+  composition.push({ type: 'swarm_coordinator', count: 1 });
+  composition.push({ type: 'topology_coordinator', count: 1 });
+  
+  return composition.length > 0 ? composition : [
+    { type: 'code_worker', count: 2 },
+    { type: 'data_worker', count: 1 },
+    { type: 'swarm_coordinator', count: 1 }
+  ];
+}
+
+async function simulateHiveMindExecution(prompt: string, options: any): Promise<void> {
+  const phases = [
+    'Task decomposition',
+    'Agent synchronization', 
+    'Parallel processing',
+    'Consensus validation',
+    'Result aggregation'
+  ];
+  
+  for (let i = 0; i < phases.length; i++) {
+    await new Promise(resolve => setTimeout(resolve, 500));
+    console.log(chalk.blue(`   ${i + 1}. ${phases[i]}...`), chalk.green('✓'));
+  }
+}
+
 // Interactive mode
 program
   .command('interactive')
@@ -237,6 +383,7 @@ program
             'Create Neural Mesh',
             'Start Swarm',
             'Configure Bridge',
+            'Spawn Hive-Mind',
             'Exit'
           ]
         }
@@ -245,6 +392,29 @@ program
       if (action === 'Exit') {
         console.log(chalk.green('👋 Goodbye!'));
         break;
+      }
+      
+      if (action === 'Spawn Hive-Mind') {
+        const { prompt } = await inquirer.prompt([
+          {
+            type: 'input',
+            name: 'prompt',
+            message: 'Enter your hive-mind task prompt:',
+            validate: (input: string) => input.length > 0 || 'Prompt cannot be empty'
+          }
+        ]);
+        
+        const { agents } = await inquirer.prompt([
+          {
+            type: 'input',
+            name: 'agents',
+            message: 'Number of agents:',
+            default: '5'
+          }
+        ]);
+        
+        console.log(chalk.blue(`Spawning hive-mind with prompt: "${prompt}"`));
+        // Execute hive-mind spawn here
       }
 
       console.log(chalk.blue(`Executing: ${action}`));

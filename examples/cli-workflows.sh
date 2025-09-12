@@ -56,7 +56,14 @@ echo "📊 Listing tasks..."
 codex-beta task list
 codex-beta task list --status pending
 
-# 7. Consensus Proposals
+# 7. Hive-Mind Coordination
+echo ""
+echo "🧠 Spawning coordinated hive-mind agents..."
+codex-beta hive-mind spawn "Create a React dashboard with real-time data visualization" --agents 6 --algorithm pso --auto-scale
+codex-beta hive-mind spawn "Analyze customer feedback and generate sentiment reports" --agents 4 --algorithm aco --fault-tolerance
+codex-beta hive-mind status
+
+# 8. Consensus Proposals
 echo ""
 echo "🗳️  Creating consensus proposal..."
 codex-beta consensus propose system_upgrade '{"version":"2.0.0","features":["quantum_ready"]}'
@@ -65,7 +72,7 @@ echo ""
 echo "🗳️  Voting on proposal (example)..."
 # codex-beta consensus vote proposal-123 yes
 
-# 8. Interactive Mode Example
+# 9. Interactive Mode Example
 echo ""
 echo "🎛️  Starting interactive mode (commented out)..."
 # codex-beta interactive
@@ -82,6 +89,7 @@ echo "  - codex-beta --help"
 echo ""
 echo "🧹 Cleaning up..."
 codex-beta swarm stop
+codex-beta hive-mind terminate
 # kill $SYSTEM_PID 2>/dev/null || true
 
 echo "✅ Done!"
