@@ -1,0 +1,350 @@
+/**
+ * Swarm Coordinator for multi-agent coordination and optimization
+ */
+
+import { EventEmitter } from 'events';
+import { Logger } from '../core/logger';
+import { AgentRegistry } from '../agents/registry';
+import { SwarmConfiguration, AgentId } from '../core/types';
+
+export class SwarmCoordinator extends EventEmitter {
+  private logger = Logger.getInstance();
+  private isRunning = false;
+  private currentConfiguration?: SwarmConfiguration;
+  private optimizationInterval?: NodeJS.Timeout;
+  private particles: Map<string, SwarmParticle> = new Map();
+
+  constructor(private agentRegistry: AgentRegistry) {
+    super();
+    this.logger.info('swarm', 'Swarm coordinator created');
+  }
+
+  async initialize(): Promise<void> {
+    this.logger.info('swarm', 'Initializing swarm coordinator...');
+    
+    this.isRunning = true;
+    this.setupEventHandlers();
+    
+    this.logger.info('swarm', 'Swarm coordinator initialized');
+  }
+
+  async shutdown(): Promise<void> {
+    this.logger.info('swarm', 'Shutting down swarm coordinator...');
+    
+    this.isRunning = false;
+    
+    if (this.optimizationInterval) {
+      clearInterval(this.optimizationInterval);
+      this.optimizationInterval = undefined;
+    }
+
+    this.particles.clear();
+    
+    this.logger.info('swarm', 'Swarm coordinator shutdown complete');
+  }
+
+  private setupEventHandlers(): void {
+    this.agentRegistry.on('agentRegistered', (agent: any) => {
+      this.addParticle(agent.id);
+    });
+
+    this.agentRegistry.on('agentUnregistered', (agentId: AgentId) => {
+      this.removeParticle(agentId);
+    });
+  }
+
+  startSwarm(config: SwarmConfiguration): void {
+    this.currentConfiguration = config;
+    
+    this.logger.info('swarm', 'Starting swarm optimization', { 
+      algorithm: config.algorithm,
+      objectives: config.objectives
+    });
+
+    // Initialize particles for all agents
+    const agents = this.agentRegistry.getAllAgents();
+    for (const agent of agents) {
+      this.addParticle(agent.id);
+    }
+
+    // Start optimization loop
+    this.optimizationInterval = setInterval(() => {
+      this.performOptimizationStep();
+    }, 1000);
+
+    this.emit('swarmStarted', config);
+  }
+
+  stopSwarm(): void {
+    if (this.optimizationInterval) {
+      clearInterval(this.optimizationInterval);
+      this.optimizationInterval = undefined;
+    }
+
+    this.particles.clear();
+    this.currentConfiguration = undefined;
+
+    this.logger.info('swarm', 'Swarm optimization stopped');
+    this.emit('swarmStopped');
+  }
+
+  private addParticle(agentId: AgentId): void {
+    if (!this.currentConfiguration || this.particles.has(agentId.id)) {
+      return;
+    }
+
+    const particle: SwarmParticle = {
+      agentId,
+      position: this.generateRandomPosition(),
+      velocity: this.generateRandomVelocity(),
+      bestPosition: this.generateRandomPosition(),
+      bestFitness: -Infinity,
+      fitness: 0
+    };
+
+    this.particles.set(agentId.id, particle);
+    
+    this.logger.debug('swarm', 'Particle added to swarm', { agentId: agentId.id });
+  }
+
+  private removeParticle(agentId: AgentId): void {
+    this.particles.delete(agentId.id);
+    this.logger.debug('swarm', 'Particle removed from swarm', { agentId: agentId.id });
+  }
+
+  private performOptimizationStep(): void {
+    if (!this.currentConfiguration || this.particles.size === 0) {
+      return;
+    }
+
+    switch (this.currentConfiguration.algorithm) {
+      case 'pso':
+        this.performPSOStep();
+        break;
+      case 'aco':
+        this.performACOStep();
+        break;
+      case 'flocking':
+        this.performFlockingStep();
+        break;
+      default:
+        this.logger.warn('swarm', 'Unknown swarm algorithm', { 
+          algorithm: this.currentConfiguration.algorithm 
+        });
+    }
+  }
+
+  private performPSOStep(): void {
+    const config = this.currentConfiguration!;
+    const w = config.parameters.inertiaWeight || 0.5;
+    const c1 = config.parameters.cognitiveCoeff || 1.5;
+    const c2 = config.parameters.socialCoeff || 1.5;
+
+    // Find global best position
+    const globalBest = this.findGlobalBest();
+
+    for (const particle of this.particles.values()) {
+      // Calculate fitness
+      particle.fitness = this.calculateFitness(particle);
+      
+      // Update personal best
+      if (particle.fitness > particle.bestFitness) {
+        particle.bestFitness = particle.fitness;
+        particle.bestPosition = [...particle.position];
+      }
+
+      // Update velocity and position
+      for (let i = 0; i < particle.position.length; i++) {
+        const r1 = Math.random();
+        const r2 = Math.random();
+        
+        particle.velocity[i] = w * particle.velocity[i] +
+                              c1 * r1 * (particle.bestPosition[i] - particle.position[i]) +
+                              c2 * r2 * (globalBest.position[i] - particle.position[i]);
+        
+        particle.position[i] += particle.velocity[i];
+        
+        // Apply bounds
+        particle.position[i] = Math.max(-100, Math.min(100, particle.position[i]));
+      }
+    }
+
+    this.logger.debug('swarm', 'PSO step completed', { 
+      particles: this.particles.size,
+      globalBestFitness: globalBest.fitness
+    });
+  }
+
+  private performACOStep(): void {
+    // Simplified ACO implementation
+    this.logger.debug('swarm', 'ACO step completed');
+  }
+
+  private performFlockingStep(): void {
+    // Simplified flocking implementation
+    const separationRadius = 10;
+    const alignmentRadius = 20;
+    const cohesionRadius = 30;
+
+    for (const particle of this.particles.values()) {
+      const neighbors = this.findNeighbors(particle, cohesionRadius);
+      
+      const separation = this.calculateSeparation(particle, neighbors, separationRadius);
+      const alignment = this.calculateAlignment(particle, neighbors);
+      const cohesion = this.calculateCohesion(particle, neighbors);
+
+      // Combine forces
+      for (let i = 0; i < particle.velocity.length; i++) {
+        particle.velocity[i] = 0.5 * particle.velocity[i] +
+                              0.2 * separation[i] +
+                              0.1 * alignment[i] +
+                              0.2 * cohesion[i];
+        
+        particle.position[i] += particle.velocity[i];
+      }
+    }
+
+    this.logger.debug('swarm', 'Flocking step completed');
+  }
+
+  private generateRandomPosition(): number[] {
+    return [
+      Math.random() * 200 - 100, // x: -100 to 100
+      Math.random() * 200 - 100, // y: -100 to 100
+      Math.random() * 200 - 100  // z: -100 to 100
+    ];
+  }
+
+  private generateRandomVelocity(): number[] {
+    return [
+      Math.random() * 10 - 5, // vx: -5 to 5
+      Math.random() * 10 - 5, // vy: -5 to 5
+      Math.random() * 10 - 5  // vz: -5 to 5
+    ];
+  }
+
+  private calculateFitness(particle: SwarmParticle): number {
+    // Simplified fitness function - would be problem-specific
+    return -Math.sqrt(
+      particle.position[0] * particle.position[0] +
+      particle.position[1] * particle.position[1] +
+      particle.position[2] * particle.position[2]
+    );
+  }
+
+  private findGlobalBest(): SwarmParticle {
+    let bestParticle = Array.from(this.particles.values())[0];
+    let bestFitness = bestParticle?.bestFitness || -Infinity;
+
+    for (const particle of this.particles.values()) {
+      if (particle.bestFitness > bestFitness) {
+        bestFitness = particle.bestFitness;
+        bestParticle = particle;
+      }
+    }
+
+    return bestParticle;
+  }
+
+  private findNeighbors(particle: SwarmParticle, radius: number): SwarmParticle[] {
+    const neighbors: SwarmParticle[] = [];
+    
+    for (const other of this.particles.values()) {
+      if (other.agentId.id === particle.agentId.id) continue;
+      
+      const distance = this.calculateDistance(particle.position, other.position);
+      if (distance <= radius) {
+        neighbors.push(other);
+      }
+    }
+    
+    return neighbors;
+  }
+
+  private calculateDistance(pos1: number[], pos2: number[]): number {
+    let sum = 0;
+    for (let i = 0; i < pos1.length; i++) {
+      sum += (pos1[i] - pos2[i]) ** 2;
+    }
+    return Math.sqrt(sum);
+  }
+
+  private calculateSeparation(particle: SwarmParticle, neighbors: SwarmParticle[], radius: number): number[] {
+    const separation = [0, 0, 0];
+    let count = 0;
+
+    for (const neighbor of neighbors) {
+      const distance = this.calculateDistance(particle.position, neighbor.position);
+      if (distance < radius && distance > 0) {
+        for (let i = 0; i < separation.length; i++) {
+          separation[i] += (particle.position[i] - neighbor.position[i]) / distance;
+        }
+        count++;
+      }
+    }
+
+    if (count > 0) {
+      for (let i = 0; i < separation.length; i++) {
+        separation[i] /= count;
+      }
+    }
+
+    return separation;
+  }
+
+  private calculateAlignment(particle: SwarmParticle, neighbors: SwarmParticle[]): number[] {
+    const alignment = [0, 0, 0];
+    
+    if (neighbors.length > 0) {
+      for (const neighbor of neighbors) {
+        for (let i = 0; i < alignment.length; i++) {
+          alignment[i] += neighbor.velocity[i];
+        }
+      }
+      
+      for (let i = 0; i < alignment.length; i++) {
+        alignment[i] /= neighbors.length;
+        alignment[i] -= particle.velocity[i];
+      }
+    }
+
+    return alignment;
+  }
+
+  private calculateCohesion(particle: SwarmParticle, neighbors: SwarmParticle[]): number[] {
+    const cohesion = [0, 0, 0];
+    
+    if (neighbors.length > 0) {
+      for (const neighbor of neighbors) {
+        for (let i = 0; i < cohesion.length; i++) {
+          cohesion[i] += neighbor.position[i];
+        }
+      }
+      
+      for (let i = 0; i < cohesion.length; i++) {
+        cohesion[i] /= neighbors.length;
+        cohesion[i] -= particle.position[i];
+      }
+    }
+
+    return cohesion;
+  }
+
+  getStatus(): any {
+    return {
+      isRunning: this.isRunning,
+      particleCount: this.particles.size,
+      algorithm: this.currentConfiguration?.algorithm || 'none',
+      isOptimizing: !!this.optimizationInterval
+    };
+  }
+}
+
+interface SwarmParticle {
+  agentId: AgentId;
+  position: number[];
+  velocity: number[];
+  bestPosition: number[];
+  bestFitness: number;
+  fitness: number;
+}

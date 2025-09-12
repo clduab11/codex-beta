@@ -1,0 +1,47 @@
+{
+  "system": {
+    "logLevel": "info",
+    "maxAgents": 100,
+    "heartbeatInterval": 30000,
+    "taskTimeout": 300000
+  },
+  "networking": {
+    "defaultPort": 8080,
+    "protocols": [
+      "ws",
+      "tcp",
+      "grpc"
+    ],
+    "security": {
+      "encryption": true,
+      "authRequired": true
+    }
+  },
+  "mesh": {
+    "maxConnections": 10,
+    "updateInterval": 5000,
+    "topology": "mesh"
+  },
+  "swarm": {
+    "defaultAlgorithm": "pso",
+    "maxIterations": 1000,
+    "convergenceThreshold": 0.01
+  },
+  "consensus": {
+    "mechanism": "raft",
+    "timeout": 10000,
+    "minVotes": 3
+  },
+  "bridges": {
+    "mcp": {
+      "enabled": true,
+      "endpoints": [
+        "http://localhost:8081"
+      ]
+    },
+    "a2a": {
+      "enabled": true,
+      "discoveryInterval": 60000
+    }
+  }
+}
