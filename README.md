@@ -41,8 +41,7 @@ Codex-Beta is a comprehensive system for enhancing OpenAI's Codex with advanced 
 ```bash
 git clone https://github.com/clduab11/codex-beta.git
 cd codex-beta
-npm install
-npm run build
+npm install  # installs dependencies and compiles the TypeScript sources
 ```
 
 ### Global CLI Installation (Optional)
