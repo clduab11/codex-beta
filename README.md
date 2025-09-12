@@ -26,7 +26,6 @@ Codex-Beta is a comprehensive system for enhancing OpenAI's Codex with advanced 
 - [API Documentation](#api-documentation)
 - [Examples](#examples)
 - [Configuration](#configuration)
-- [Testing](#testing)
 - [Contributing](#contributing)
 
 ## 🛠 Installation
@@ -341,33 +340,6 @@ CODEX_BETA_MAX_AGENTS=50
 CODEX_BETA_CONFIG_PATH=./custom-config.json
 ```
 
-## 🧪 Testing
-
-### Run Test Suite
-
-```bash
-# Run all tests
-npm test
-
-# Run tests with coverage
-npm run test:coverage
-
-# Run tests in watch mode
-npm run test:watch
-```
-
-### Test Structure
-
-- **Unit Tests**: Individual component testing
-- **Integration Tests**: Component interaction testing  
-- **End-to-End Tests**: Full system workflow testing
-
-Current test coverage: **11 tests passing**
-
-```
-Test Suites: 2 passed, 2 total
-Tests:       11 passed, 11 total
-```
 
 ## 🔧 Development
 
@@ -392,7 +364,6 @@ codex-beta/
 │   ├── consensus/     # Consensus mechanisms
 │   ├── bridging/      # MCP/A2A bridges
 │   └── cli/           # Command-line interface
-├── tests/             # Test suites
 ├── examples/          # Usage examples
 ├── docs/              # Documentation
 └── config/            # Configuration files
@@ -413,11 +384,10 @@ We welcome contributions! Please see [CONTRIBUTING.md](./CONTRIBUTING.md) for gu
 
 1. Fork the repository
 2. Create a feature branch: `git checkout -b feature/amazing-feature`
-3. Make your changes and add tests
-4. Run the test suite: `npm test`  
-5. Commit your changes: `git commit -m 'Add amazing feature'`
-6. Push to the branch: `git push origin feature/amazing-feature`
-7. Open a Pull Request
+3. Make your changes
+4. Commit your changes: `git commit -m 'Add amazing feature'`
+5. Push to the branch: `git push origin feature/amazing-feature`
+6. Open a Pull Request
 
 ## 📄 License
 
