@@ -165,6 +165,15 @@ export class NeuralMesh extends EventEmitter {
     return nodeCount > 0 ? this.getConnectionCount() / nodeCount : 0;
   }
 
+  getNeighbors(agentId: AgentId): NeuralMeshNode[] {
+    const node = this.nodes.get(agentId.id);
+    if (!node) {
+      return [];
+    }
+
+    return node.connections.map(conn => this.nodes.get(conn.target.id)).filter(n => n) as NeuralMeshNode[];
+  }
+
   getStatus(): any {
     return {
       isRunning: this.isRunning,

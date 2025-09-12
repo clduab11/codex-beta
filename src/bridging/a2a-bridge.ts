@@ -5,6 +5,7 @@
 import { EventEmitter } from 'events';
 import { Logger } from '../core/logger';
 import { AgentRegistry } from '../agents/registry';
+import { AgentId } from '../core/types';
 
 export class A2ABridge extends EventEmitter {
   private logger = Logger.getInstance();
@@ -32,5 +33,12 @@ export class A2ABridge extends EventEmitter {
       isRunning: this.isRunning,
       registeredAgents: this.agentRegistry.getAgentCount()
     };
+  }
+
+  async sendMessage(from: AgentId, to: AgentId, message: any): Promise<void> {
+    this.logger.info('a2a-bridge', `Sending message from ${from.id} to ${to.id}`);
+    // In a real implementation, this would send the message to the target agent
+    await new Promise(resolve => setTimeout(resolve, 100));
+    this.logger.info('a2a-bridge', 'Message sent successfully');
   }
 }

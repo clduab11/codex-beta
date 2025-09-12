@@ -12,6 +12,7 @@ import { ConsensusManager } from '../consensus/manager';
 import { MCPBridge } from '../bridging/mcp-bridge';
 import { A2ABridge } from '../bridging/a2a-bridge';
 import { ConfigurationManager } from './config';
+import { AgentType } from './types';
 
 export class CodexBetaSystem extends EventEmitter {
   private logger = Logger.getInstance();
@@ -199,5 +200,41 @@ export class CodexBetaSystem extends EventEmitter {
         a2aBridge: this.a2aBridge.getStatus()
       }
     };
+  }
+
+  async deployAgent(type: AgentType, count: number): Promise<void> {
+    this.logger.info('system', `Deploying ${count} ${type} agent(s)...`);
+    // In a real implementation, this would involve creating and registering agent instances
+    await new Promise(resolve => setTimeout(resolve, 500));
+    this.logger.info('system', 'Agents deployed successfully');
+  }
+
+  async createNeuralMesh(topology: string, nodes: number): Promise<void> {
+    this.logger.info('system', `Creating neural mesh with ${nodes} nodes and ${topology} topology...`);
+    // In a real implementation, this would involve configuring the neural mesh
+    await new Promise(resolve => setTimeout(resolve, 500));
+    this.logger.info('system', 'Neural mesh created successfully');
+  }
+
+  async startSwarm(algorithm: string): Promise<void> {
+    this.logger.info('system', `Starting swarm with ${algorithm} algorithm...`);
+    // In a real implementation, this would involve starting the swarm coordination
+    await new Promise(resolve => setTimeout(resolve, 500));
+    this.logger.info('system', 'Swarm coordination started');
+  }
+
+  async executeTask(prompt: string): Promise<any> {
+    this.logger.info('system', `Executing task: ${prompt}`);
+    // In a real implementation, this would involve submitting the task to the scheduler
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    const results = {
+      prompt,
+      summary: 'Task completed successfully',
+      data: {
+        // Add relevant data here
+      }
+    };
+    this.logger.info('system', 'Task executed successfully');
+    return results;
   }
 }

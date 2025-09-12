@@ -9,6 +9,7 @@ import chalk from 'chalk';
 import inquirer from 'inquirer';
 import { CodexBetaSystem } from '../core/system';
 import { AgentType } from '../core/types';
+import { executeHiveMindSpawn } from '../core/hive-mind';
 
 const program = new Command();
 
@@ -260,7 +261,6 @@ hiveMindCmd
     try {
       // 1. Analyze prompt to determine agent types needed
       console.log(chalk.blue('🔍 Analyzing prompt and determining optimal agent composition...'));
-      const agentComposition = analyzePromptForAgents(prompt);
       
       // 2. Create neural mesh
       console.log(chalk.blue('🕸️  Creating neural mesh network...'));
@@ -269,9 +269,6 @@ hiveMindCmd
       
       // 3. Deploy agents
       console.log(chalk.blue('🚀 Deploying hive-mind agents...'));
-      agentComposition.forEach(({ type, count }) => {
-        console.log(chalk.gray(`   ${type}: ${count} instances`));
-      });
       
       // 4. Initialize swarm coordination
       console.log(chalk.blue('🐝 Initializing swarm coordination...'));
@@ -286,8 +283,8 @@ hiveMindCmd
       // 6. Start task execution
       console.log(chalk.blue('⚡ Starting coordinated task execution...'));
       
-      // Simulate task execution phases
-      await simulateHiveMindExecution(prompt, options);
+      // Execute the hive-mind spawn
+      await executeHiveMindSpawn(prompt, options);
       
       console.log(chalk.green('✅ Hive-mind spawn completed successfully!'));
       console.log(chalk.cyan('📊 Results saved to: ./hive-mind-results.json'));
@@ -319,49 +316,7 @@ hiveMindCmd
     console.log(chalk.green('✅ All hive-mind swarms terminated'));
   });
 
-// Helper functions for hive-mind functionality
-function analyzePromptForAgents(prompt: string): Array<{ type: string, count: number }> {
-  // Simple prompt analysis - in a real implementation, this would use NLP
-  const promptLower = prompt.toLowerCase();
-  const composition: Array<{ type: string, count: number }> = [];
-  
-  if (promptLower.includes('code') || promptLower.includes('program') || promptLower.includes('develop')) {
-    composition.push({ type: 'code_worker', count: 3 });
-  }
-  
-  if (promptLower.includes('data') || promptLower.includes('analyze') || promptLower.includes('process')) {
-    composition.push({ type: 'data_worker', count: 2 });
-  }
-  
-  if (promptLower.includes('test') || promptLower.includes('validate') || promptLower.includes('check')) {
-    composition.push({ type: 'validation_worker', count: 1 });
-  }
-  
-  // Always include coordinators for hive-mind
-  composition.push({ type: 'swarm_coordinator', count: 1 });
-  composition.push({ type: 'topology_coordinator', count: 1 });
-  
-  return composition.length > 0 ? composition : [
-    { type: 'code_worker', count: 2 },
-    { type: 'data_worker', count: 1 },
-    { type: 'swarm_coordinator', count: 1 }
-  ];
-}
 
-async function simulateHiveMindExecution(prompt: string, options: any): Promise<void> {
-  const phases = [
-    'Task decomposition',
-    'Agent synchronization', 
-    'Parallel processing',
-    'Consensus validation',
-    'Result aggregation'
-  ];
-  
-  for (let i = 0; i < phases.length; i++) {
-    await new Promise(resolve => setTimeout(resolve, 500));
-    console.log(chalk.blue(`   ${i + 1}. ${phases[i]}...`), chalk.green('✓'));
-  }
-}
 
 // Interactive mode
 program

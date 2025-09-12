@@ -338,9 +338,13 @@ export class SwarmCoordinator extends EventEmitter {
       isOptimizing: !!this.optimizationInterval
     };
   }
+
+  getParticle(agentId: AgentId): SwarmParticle | undefined {
+    return this.particles.get(agentId.id);
+  }
 }
 
-interface SwarmParticle {
+export interface SwarmParticle {
   agentId: AgentId;
   position: number[];
   velocity: number[];

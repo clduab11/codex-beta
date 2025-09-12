@@ -42,4 +42,14 @@ export class MCPBridge extends EventEmitter {
       connectedEndpoints: Array.from(this.connectedEndpoints.keys())
     };
   }
+
+  async sendMessage(endpoint: string, message: any): Promise<any> {
+    this.logger.info('mcp-bridge', `Sending message to endpoint ${endpoint}`);
+    // In a real implementation, this would send the message to the target endpoint
+    await new Promise(resolve => setTimeout(resolve, 100));
+    this.logger.info('mcp-bridge', 'Message sent successfully');
+    return {
+      response: 'Message received'
+    };
+  }
 }

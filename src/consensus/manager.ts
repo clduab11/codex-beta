@@ -174,6 +174,28 @@ export class ConsensusManager extends EventEmitter {
     return this.votes.get(proposalId) || [];
   }
 
+  getProposalStatus(proposalId: string): any {
+    const proposal = this.activeProposals.get(proposalId);
+    if (!proposal) {
+      return {
+        status: 'not_found'
+      };
+    }
+
+    const votes = this.votes.get(proposalId) || [];
+    const yesVotes = votes.filter(v => v.vote).length;
+    const noVotes = votes.filter(v => !v.vote).length;
+
+    return {
+      status: 'active',
+      proposal,
+      votes,
+      yesVotes,
+      noVotes,
+      requiredVotes: proposal.requiredVotes
+    };
+  }
+
   getStatus(): any {
     return {
       isRunning: this.isRunning,

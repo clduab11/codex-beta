@@ -294,4 +294,8 @@ export class TaskScheduler extends EventEmitter {
       queueSize: this.taskQueue.length
     };
   }
+
+  getTaskQueue(): Task[] {
+    return [...this.taskQueue];
+  }
 }

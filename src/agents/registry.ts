@@ -5,6 +5,7 @@
 import { EventEmitter } from 'events';
 import { Logger } from '../core/logger';
 import { AgentId, AgentMetadata, AgentStatus, Task, AgentType } from '../core/types';
+import { Agent } from './agent';
 
 export class AgentRegistry extends EventEmitter {
   private logger = Logger.getInstance();
@@ -52,6 +53,10 @@ export class AgentRegistry extends EventEmitter {
     }
 
     this.logger.info('registry', 'Agent registry shutdown complete');
+  }
+
+  register(agent: Agent): void {
+    this.registerAgent(agent.getMetadata());
   }
 
   registerAgent(metadata: AgentMetadata): void {
