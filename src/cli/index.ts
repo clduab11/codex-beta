@@ -7,6 +7,8 @@
 import { Command } from 'commander';
 import chalk from 'chalk';
 import inquirer from 'inquirer';
+import * as fs from 'fs';
+import * as path from 'path';
 import { CodexBetaSystem } from '../core/system';
 import { AgentType } from '../core/types';
 import { executeHiveMindSpawn } from '../core/hive-mind';
@@ -233,10 +235,42 @@ hiveMindCmd
   .option('--consensus <type>', 'Consensus mechanism (byzantine|raft|pow|pos)', 'raft')
   .option('--auto-scale', 'Enable automatic agent scaling based on workload')
   .option('--fault-tolerance', 'Enable Byzantine fault tolerance')
+  .option('--agents-file <path>', 'Path to file containing agent directives to prepend to prompt')
   .option('--debug', 'Enable debug mode with detailed logging')
   .action(async (prompt, options) => {
     console.log(chalk.magenta('🧠 Hive-Mind Spawn Initiated'));
     console.log(chalk.cyan('=' .repeat(50)));
+    
+    // Handle agents-file injection if provided
+    let fullPrompt = prompt;
+    if (options.agentsFile) {
+      const agentsFilePath = path.resolve(process.cwd(), options.agentsFile);
+      
+      if (fs.existsSync(agentsFilePath)) {
+        try {
+          // Check file size and warn if > 500KB
+          const stats = fs.statSync(agentsFilePath);
+          const fileSizeKB = stats.size / 1024;
+          
+          if (fileSizeKB > 500) {
+            console.log(chalk.yellow(`⚠️  Warning: Large agents file (${fileSizeKB.toFixed(1)}KB) may cause high token usage`));
+          }
+          
+          // Read file content and prepend to prompt
+          const fileContent = fs.readFileSync(agentsFilePath, 'utf8');
+          fullPrompt = fileContent + "\n\n" + prompt;
+          
+          console.log(chalk.gray(`🔗 Injected agents file: ${agentsFilePath}`));
+        } catch (error) {
+          const errorMessage = error instanceof Error ? error.message : String(error);
+          console.log(chalk.yellow(`⚠️  Warning: Failed to read agents file '${agentsFilePath}': ${errorMessage}`));
+          console.log(chalk.gray('Continuing with original prompt...'));
+        }
+      } else {
+        console.log(chalk.yellow(`⚠️  Warning: Agents file not found: ${agentsFilePath}`));
+        console.log(chalk.gray('Continuing with original prompt...'));
+      }
+    }
     
     console.log(chalk.blue('📝 Task Prompt:'), chalk.white(prompt));
     console.log(chalk.blue('🤖 Agents:'), chalk.white(options.agents));
@@ -283,8 +317,9 @@ hiveMindCmd
       // 6. Start task execution
       console.log(chalk.blue('⚡ Starting coordinated task execution...'));
       
-      // Execute the hive-mind spawn
-      await executeHiveMindSpawn(prompt, options);
+      // Execute the hive-mind spawn with the full prompt (including injected content if any)
+      // The fullPrompt combines the agents file content with the user prompt for enhanced context
+      await executeHiveMindSpawn(fullPrompt, options);
       
       console.log(chalk.green('✅ Hive-mind spawn completed successfully!'));
       console.log(chalk.cyan('📊 Results saved to: ./hive-mind-results.json'));
