@@ -18,3 +18,4 @@ yarn-error.log*
 *~
 .tmp/
 temp/
+hive-mind-results.json

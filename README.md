@@ -117,12 +117,26 @@ codex-beta hive-mind spawn "Build a React dashboard with real-time data visualiz
   --fault-tolerance \
   --debug
 
+# Hive-mind with agents file for enhanced context
+codex-beta hive-mind spawn "<prompt>" --agents-file ./AGENTS.md --agents 7 --algorithm pso
+
 # Check hive-mind status
 codex-beta hive-mind status
 
 # Terminate all hive-minds
 codex-beta hive-mind terminate --force
 ```
+
+#### Using Agents Files
+
+You can inject large directive files (like AGENTS.md) into your hive-mind spawns using the `--agents-file` option:
+
+```bash
+# Include agents directives from a file
+codex-beta hive-mind spawn "Your specific task prompt" --agents-file ./AGENTS.md --agents 7 --algorithm pso
+```
+
+The file contents are automatically prepended to your prompt, providing enhanced context without manual copy-pasting.
 
 ### 6. Submit Tasks
 

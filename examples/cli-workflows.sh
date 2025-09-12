@@ -61,6 +61,7 @@ echo ""
 echo "🧠 Spawning coordinated hive-mind agents..."
 codex-beta hive-mind spawn "Create a React dashboard with real-time data visualization" --agents 6 --algorithm pso --auto-scale
 codex-beta hive-mind spawn "Analyze customer feedback and generate sentiment reports" --agents 4 --algorithm aco --fault-tolerance
+codex-beta hive-mind spawn "Enhanced task with agent directives" --agents-file ./AGENTS.md --agents 5 --algorithm pso
 codex-beta hive-mind status
 
 # 8. Consensus Proposals
