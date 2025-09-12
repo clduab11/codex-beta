@@ -1,6 +1,6 @@
-# AGENTS.md - Codex-Optimized Agent Guidance for The-Fantasizer
+# AGENTS.md - Codex-Optimized Agent Guidance for Codex-Beta
 
-This document provides comprehensive guidance for AI agents, specifically optimized for OpenAI Codex, when working on the `the-fantasizer` project. It merges insights from various agentic frameworks, incorporates project-specific discoveries, and outlines best practices for code generation, debugging, and optimization workflows.
+This document provides comprehensive guidance for AI agents, specifically optimized for OpenAI Codex, when working on the `codex-beta` project. It merges insights from various agentic frameworks, incorporates project-specific discoveries, and outlines best practices for code generation, debugging, and optimization workflows.
 
 ## 📋 Table of Contents
 
@@ -65,7 +65,6 @@ This document provides comprehensive guidance for AI agents, specifically optimi
     *   [Memory Sharing Protocols](#memory-sharing-protocols)
     *   [Memory Commands](#memory-commands)
 12. [Build & Test Commands](#12-build--test-commands)
-13. [Domain-Specific Logic: Fantasy Sports](#13-domain-specific-logic-fantasy-sports)
 14. [Further Reading](#14-further-reading)
 
 ---
@@ -76,7 +75,7 @@ This document provides comprehensive guidance for AI agents, specifically optimi
 -   **Nested Frontend**: The path `src/frontend/src/frontend/` indicates an incomplete or unusual migration. Be aware of this deep nesting when referencing frontend files.
 -   **Polyglot Stack**: This project uses both Node.js (frontend) and Python (backend, AI/ML). AI/ML components leverage PyTorch, scikit-learn, XGBoost, and Optuna.
 -   **AI-First Workflow**: The presence of `.claude-flow/` directories suggests an AI-assisted development workflow. Hive Systems integration is also present, indicating a multi-AI agent environment.
--   **Enterprise Infrastructure**: Despite being a consumer fantasy sports app, the project utilizes enterprise-grade infrastructure like Kubernetes and Terraform.
+-   **Enterprise Infrastructure**: Despite being a AI orchestration platform, the project utilizes enterprise-grade infrastructure like Kubernetes and Terraform.
 -   **File-Based Secrets**: Secrets are managed via files within Docker, which is an unusual pattern.
 -   **Platform-Specific GPU**: GPU configurations differ for Apple Silicon (Metal) and NVIDIA.
 -   **MCP Protocol Bridge**: Integrates external tools and services, enabling cross-protocol communication and enhanced routing.
@@ -103,11 +102,6 @@ When interacting with Codex, structure prompts to maximize clarity and leverage 
 -   **Input/Output**: Define expected parameters, their types, and the return type.
 -   **Context**: Provide relevant existing code snippets, data models, or API interfaces.
 -   **Constraints**: Specify performance, security, or style requirements.
--   **Example**:
-    ```
-    "Generate a TypeScript function `calculateFantasyPoints(playerStats: PlayerStats): number` that computes fantasy points based on NFL scoring rules. PlayerStats interface is { touchdowns: number, yards: number, receptions: number }. Use standard PPR scoring."
-    ```
-
 #### 2. Debugging
 -   **Problem Description**: Clearly articulate the bug, error message, and observed behavior.
 -   **Relevant Code**: Provide the problematic code block and surrounding context.
@@ -1385,16 +1379,6 @@ gemini-flow memory query <pattern> [options]
 
 ---
 
-## 13. Domain-Specific Logic: Fantasy Sports
-
-The `the-fantasizer` project involves complex fantasy sports domain logic. Agents should be aware of:
--   **Kelly Criterion Implementation**: Used for optimal bankroll management.
--   **Multi-Entry Optimization**: Strategies for maximizing returns across multiple contest entries.
--   **Real-time Contest Monitoring**: Tracking live game data and player performance.
--   **Player Projections**: Integration with various data feeds for player performance predictions.
-
----
-
 ## 14. Further Reading
 
 -   For detailed information on the agent system, swarm patterns, and MCP integration, refer to [`CLAUDE.md`](CLAUDE.md).
@@ -1703,47 +1687,3 @@ Hive Systems implements several collective intelligence patterns for decision-ma
 -   **Levels**: `['queen', 'coordinators', 'workers']`
 -   **Veto Rights**: `['queen']`
 -   **Escalation**: `true`
-
----
-
-## 5. Memory Management
-
-The system utilizes a robust memory architecture for persistent context and efficient data access.
-
-### Key Principles
--   **Persistent Context**: Retain relevant context across development stages.
--   **Namespace Organization**: Use clear namespace hierarchies for memory keys.
--   **TTL Strategy**: Set appropriate expiration for temporary data.
--   **Batch Operations**: Use batch operations for bulk memory updates.
--   **SQLite WAL Mode**: Enabled for high-performance read/write operations.
-
-### Memory Operations
--   `gemini-flow hive-mind memory --store <key:value>`: Store memory.
--   `gemini-flow hive-mind memory --retrieve <key>`: Retrieve memory.
--   `gemini-flow memory query <pattern>`: Query memory.
--   `gemini-flow memory clear --confirm`: Clear memory.
-
----
-
-## 6. Build & Test Commands
-
-### Frontend
--   **Environment-Driven Build Analysis**: Use `"build:analyze": "ANALYZE=true next build"` to enable bundle analysis.
--   **Frontend Test Directory**: Frontend tests (e.g., Playwright) **must** be run from the `src/frontend/` directory.
--   **Ngrok Integration**: Responsive tests can integrate with Ngrok using `"test:responsive:ngrok": "NGROK_URL=$NGROK_URL ./tests/responsive/run-responsive-tests.sh pwa ngrok"`.
--   **Production Validation**: A dedicated shell script `./scripts/run-production-validation.sh` handles production validation.
-
-### General
--   `npm run build/test/lint/typecheck`: Standard Node.js project commands.
-
----
-
-## 7. Domain-Specific Logic: Fantasy Sports
-
-The `the-fantasizer` project involves complex fantasy sports domain logic. Agents should be aware of:
--   **Kelly Criterion Implementation**: Used for optimal bankroll management.
--   **Multi-Entry Optimization**: Strategies for maximizing returns across multiple contest entries.
--   **Real-time Contest Monitoring**: Tracking live game data and player performance.
--   **Player Projections**: Integration with various data feeds for player performance predictions.
-
----
