@@ -4,7 +4,7 @@
 
 import { EventEmitter } from 'events';
 import { Logger } from './logger';
-import { CodexBetaSystem } from './system';
+import { CodexSynapticSystem } from './system';
 import { MemoryStatus } from './resources';
 
 export interface HealthMetrics {
@@ -77,7 +77,7 @@ export class HealthMonitor extends EventEmitter {
   private healthChecks: Map<string, () => Promise<HealthCheck>> = new Map();
   private healthInterval?: NodeJS.Timeout;
 
-  constructor(private system: CodexBetaSystem) {
+  constructor(private system: CodexSynapticSystem) {
     super();
     this.setupDefaultHealthChecks();
     this.logger.info('health', 'Health monitor initialized');

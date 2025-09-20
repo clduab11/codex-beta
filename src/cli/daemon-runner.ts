@@ -1,4 +1,4 @@
-import { CodexBetaSystem } from '../core/system';
+import { CodexSynapticSystem } from '../core/system';
 import { Logger } from '../core/logger';
 
 interface ReadyMessage {
@@ -16,7 +16,7 @@ type DaemonMessage = ReadyMessage | ErrorMessage;
 const logger = Logger.getInstance('daemon');
 
 async function main() {
-  const system = new CodexBetaSystem();
+  const system = new CodexSynapticSystem();
 
   const notify = (message: DaemonMessage) => {
     if (typeof process.send === 'function') {
@@ -27,7 +27,7 @@ async function main() {
   try {
     await system.initialize();
     notify({ type: 'ready', pid: process.pid });
-    logger.info('daemon', 'Background Codex-Beta system initialized');
+    logger.info('daemon', 'Background Codex-Synaptic system initialized');
   } catch (error) {
     const err = error as Error;
     logger.error('daemon', 'Failed to initialize background system', undefined, err);

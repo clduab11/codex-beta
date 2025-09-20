@@ -1,5 +1,5 @@
 /**
- * Resource management and rate limiting for Codex-Beta
+ * Resource management and rate limiting for Codex-Synaptic
  */
 
 import { EventEmitter } from 'events';

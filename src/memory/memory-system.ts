@@ -4,7 +4,7 @@ export class CodexMemorySystem {
   private db: any;
 
   constructor() {
-    this.db = new sqlite3.Database('.codex-swarm/memory.db');
+    this.db = new sqlite3.Database('.codex-synaptic/memory.db');
     this.initializeTables();
   }
 

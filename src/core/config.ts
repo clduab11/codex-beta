@@ -1,5 +1,5 @@
 /**
- * Configuration management for Codex-Beta system
+ * Configuration management for Codex-Synaptic system
  */
 
 import { readFile, writeFile, existsSync, mkdirSync } from 'fs';

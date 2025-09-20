@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { CliSession } from '../../src/cli/session';
-import { CodexBetaSystem } from '../../src/core/system';
+import { CodexSynapticSystem } from '../../src/core/system';
 import { Task, TaskStatus } from '../../src/core/types';
 
 const shutdownSession = async () => {
@@ -47,30 +47,30 @@ describe('CliSession lifecycle', () => {
   it('recovers from initialization failure on subsequent ensureSystem call', async () => {
     const session = CliSession.getInstance();
 
-    vi.spyOn(CodexBetaSystem.prototype, 'initialize')
+    vi.spyOn(CodexSynapticSystem.prototype, 'initialize')
       .mockRejectedValueOnce(new Error('boot failure'))
       .mockResolvedValueOnce(undefined);
-    vi.spyOn(CodexBetaSystem.prototype, 'shutdown').mockResolvedValue(undefined);
+    vi.spyOn(CodexSynapticSystem.prototype, 'shutdown').mockResolvedValue(undefined);
 
     await expect(session.ensureSystem()).rejects.toThrow('boot failure');
     expect(session.getSystemUnsafe()).toBeUndefined();
 
     const system = await session.ensureSystem();
     expect(system).toBeDefined();
-    expect(CodexBetaSystem.prototype.initialize).toHaveBeenCalledTimes(2);
+    expect(CodexSynapticSystem.prototype.initialize).toHaveBeenCalledTimes(2);
   });
 
   it('serializes concurrent ensureSystem calls into a single initialization', async () => {
     const session = CliSession.getInstance();
 
-    vi.spyOn(CodexBetaSystem.prototype, 'initialize').mockImplementation(async () => {
+    vi.spyOn(CodexSynapticSystem.prototype, 'initialize').mockImplementation(async () => {
       await new Promise((resolve) => setTimeout(resolve, 20));
     });
-    vi.spyOn(CodexBetaSystem.prototype, 'shutdown').mockResolvedValue(undefined);
+    vi.spyOn(CodexSynapticSystem.prototype, 'shutdown').mockResolvedValue(undefined);
 
     const [first, second] = await Promise.all([session.ensureSystem(), session.ensureSystem()]);
 
     expect(first).toBe(second);
-    expect(CodexBetaSystem.prototype.initialize).toHaveBeenCalledTimes(1);
+    expect(CodexSynapticSystem.prototype.initialize).toHaveBeenCalledTimes(1);
   });
 });

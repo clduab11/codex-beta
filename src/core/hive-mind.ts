@@ -1,13 +1,13 @@
 
 import { AgentType } from './types';
-import { CodexBetaSystem } from './system';
+import { CodexSynapticSystem } from './system';
 import * as fs from 'fs';
 import * as path from 'path';
 import { scanRepository, type ScanReport } from './scanner';
 import chalk from 'chalk';
 
 export async function executeHiveMindSpawn(prompt: string, options: any): Promise<void> {
-  const system = new CodexBetaSystem();
+  const system = new CodexSynapticSystem();
   await system.initialize();
 
   const agentComposition = analyzePromptForAgents(prompt);

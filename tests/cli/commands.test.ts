@@ -5,7 +5,7 @@ import { describe, expect, it } from 'vitest';
 const projectRoot = join(__dirname, '..', '..');
 
 const runCli = (args: string[]) => {
-  const output = execFileSync('node', ['-r', 'ts-node/register/transpile-only', 'src/cli/index.ts', ...args], {
+  const output = execFileSync('node', ['dist/cli/index.js', ...args], {
     cwd: projectRoot,
     env: { ...process.env, CODEX_DEBUG: '0' },
     encoding: 'utf8'
@@ -13,7 +13,7 @@ const runCli = (args: string[]) => {
   return output;
 };
 
-describe('Codex-Beta CLI commands', () => {
+describe('Codex-Synaptic CLI commands', () => {
   it('reports when the system has not been started', () => {
     const output = runCli(['system', 'status']);
     expect(output).toContain('System not started');

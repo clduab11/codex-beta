@@ -1,5 +1,5 @@
 /**
- * Core interfaces and types for the Codex-Beta system
+ * Core interfaces and types for the Codex-Synaptic system
  */
 
 export interface AgentId {

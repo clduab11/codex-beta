@@ -1,5 +1,5 @@
 /**
- * Centralized logging system for Codex-Beta
+ * Centralized logging system for Codex-Synaptic
  */
 
 import { createWriteStream, existsSync, mkdirSync } from 'fs';

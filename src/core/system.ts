@@ -1,5 +1,5 @@
 /**
- * Main Codex-Beta System orchestrator
+ * Main Codex-Synaptic System orchestrator
  */
 
 import { EventEmitter } from 'events';
@@ -49,7 +49,7 @@ interface TaskPromiseTracker {
   timeout?: NodeJS.Timeout;
 }
 
-export class CodexBetaSystem extends EventEmitter {
+export class CodexSynapticSystem extends EventEmitter {
   private logger = Logger.getInstance();
   private healthMonitor: HealthMonitor;
   private authManager: AuthenticationManager;
@@ -100,7 +100,7 @@ export class CodexBetaSystem extends EventEmitter {
 
   constructor() {
     super();
-    this.logger.info('system', 'Codex-Beta System created');
+    this.logger.info('system', 'Codex-Synaptic System created');
     
     // Initialize core infrastructure
     this.configManager = new ConfigurationManager();
@@ -141,7 +141,7 @@ export class CodexBetaSystem extends EventEmitter {
       return;
     }
 
-    this.logger.info('system', 'Initializing Codex-Beta System...');
+    this.logger.info('system', 'Initializing Codex-Synaptic System...');
 
     try {
       // Initialize error handling first
@@ -197,7 +197,7 @@ export class CodexBetaSystem extends EventEmitter {
       await this.bootstrapDefaultAgents();
       this.emit('initialized');
       
-      this.logger.info('system', 'Codex-Beta System initialized successfully');
+      this.logger.info('system', 'Codex-Synaptic System initialized successfully');
       
     } catch (error) {
       this.isInitialized = false;
@@ -213,7 +213,7 @@ export class CodexBetaSystem extends EventEmitter {
     }
 
     this.isShuttingDown = true;
-    this.logger.info('system', 'Shutting down Codex-Beta System...');
+    this.logger.info('system', 'Shutting down Codex-Synaptic System...');
 
     this.healthMonitor.stopPeriodicHealthChecks();
 
@@ -233,7 +233,7 @@ export class CodexBetaSystem extends EventEmitter {
       await this.gpuManager.shutdown();
 
       this.emit('shutdown');
-      this.logger.info('system', 'Codex-Beta System shutdown complete');
+      this.logger.info('system', 'Codex-Synaptic System shutdown complete');
       
     } catch (error) {
       this.logger.error('system', 'Error during shutdown', undefined, error as Error);

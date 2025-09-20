@@ -14,7 +14,7 @@ export interface BackgroundStatus {
   startedAt?: string;
 }
 
-const STATE_DIR = join(homedir(), '.codex-beta');
+const STATE_DIR = join(homedir(), '.codex-synaptic');
 const STATE_FILE = join(STATE_DIR, 'daemon.json');
 
 function ensureStateDir(): void {

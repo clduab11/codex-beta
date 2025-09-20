@@ -1,14 +1,14 @@
 #!/usr/bin/env node
 
 /**
- * Codex-Beta CLI - System orchestration, workflow execution, and telemetry surface
+ * Codex-Synaptic CLI - System orchestration, workflow execution, and telemetry surface
  */
 
 import { Command } from 'commander';
 import chalk from 'chalk';
 import inquirer from 'inquirer';
 import { CliSession } from './session';
-import { CodexBetaSystem } from '../core/system';
+import { CodexSynapticSystem } from '../core/system';
 import { AgentType, AgentMetadata } from '../core/types';
 import {
   getBackgroundStatus,
@@ -20,7 +20,7 @@ const program = new Command();
 const session = CliSession.getInstance();
 
 program
-  .name('codex-beta')
+  .name('codex-synaptic')
   .description('Enhanced OpenAI Codex with distributed agent capabilities')
   .version('1.0.0');
 
@@ -39,10 +39,10 @@ function handleCommand<T extends any[]>(name: string, fn: (...args: T) => Promis
   };
 }
 
-async function useSystem(description: string, fn: (system: CodexBetaSystem) => Promise<void>): Promise<void> {
+async function useSystem(description: string, fn: (system: CodexSynapticSystem) => Promise<void>): Promise<void> {
   const alreadyRunning = !!session.getSystemUnsafe();
   if (!alreadyRunning) {
-    console.log(chalk.blue(`🔧 Initializing Codex-Beta system (${description})...`));
+    console.log(chalk.blue(`🔧 Initializing Codex-Synaptic system (${description})...`));
   }
   const system = await session.ensureSystem();
   await fn(system);
@@ -116,7 +116,7 @@ function renderSwarmStatus(status: any): void {
   }
 }
 
-function renderConsensusStatus(system: CodexBetaSystem): void {
+function renderConsensusStatus(system: CodexSynapticSystem): void {
   const manager = system.getConsensusManager();
   const status = manager.getStatus();
   console.log(chalk.blue('🗳️  Consensus Manager'));
@@ -190,16 +190,16 @@ const systemCmd = program.command('system').description('System management comma
 
 systemCmd
   .command('start')
-  .description('Start the Codex-Beta system (idempotent)')
+  .description('Start the Codex-Synaptic system (idempotent)')
   .action(handleCommand('system.start', async () => {
     if (session.getSystemUnsafe()) {
-      console.log(chalk.yellow('⚠️  Codex-Beta system already running.'));
+      console.log(chalk.yellow('⚠️  Codex-Synaptic system already running.'));
       renderTelemetry();
       return;
     }
 
     await useSystem('system start', async (system) => {
-      console.log(chalk.green('✅ Codex-Beta system initialized.'));
+      console.log(chalk.green('✅ Codex-Synaptic system initialized.'));
       renderTelemetry();
       renderMeshStatus(system.getNeuralMesh().getStatus());
       renderSwarmStatus(system.getSwarmCoordinator().getStatus());
@@ -213,12 +213,12 @@ systemCmd
   .action(handleCommand('system.status', async () => {
     const system = session.getSystemUnsafe();
     if (!system) {
-      console.log(chalk.yellow('⚠️  System not started. Run `codex-beta system start` first.'));
+      console.log(chalk.yellow('⚠️  System not started. Run `codex-synaptic system start` first.'));
       return;
     }
 
     const status = system.getStatus();
-    console.log(chalk.blue('🧠 Codex-Beta System Status'));
+    console.log(chalk.blue('🧠 Codex-Synaptic System Status'));
     console.log(`  Initialized: ${status.initialized}`);
     console.log(`  Shutting down: ${status.shuttingDown}`);
     renderTelemetry();
@@ -226,7 +226,7 @@ systemCmd
 
 systemCmd
   .command('stop')
-  .description('Stop the Codex-Beta system and release resources')
+  .description('Stop the Codex-Synaptic system and release resources')
   .action(handleCommand('system.stop', async () => {
     if (!session.getSystemUnsafe()) {
       console.log(chalk.gray('System already stopped.'));
@@ -234,7 +234,7 @@ systemCmd
     }
 
     await session.shutdown('manual-stop');
-    console.log(chalk.green('✅ Codex-Beta system shutdown complete.'));
+    console.log(chalk.green('✅ Codex-Synaptic system shutdown complete.'));
   }));
 
 systemCmd
@@ -268,7 +268,7 @@ systemCmd
   }));
 
 // Background daemon commands
-const backgroundCmd = program.command('background').description('Manage the background Codex-Beta daemon');
+const backgroundCmd = program.command('background').description('Manage the background Codex-Synaptic daemon');
 
 backgroundCmd
   .command('status')
@@ -780,7 +780,7 @@ program
   .description('Start interactive mode')
   .action(handleCommand('interactive', async () => {
     await useSystem('interactive', async (system) => {
-      console.log(chalk.green('🎛️  Welcome to Codex-Beta Interactive Mode!'));
+      console.log(chalk.green('🎛️  Welcome to Codex-Synaptic Interactive Mode!'));
       let exit = false;
       while (!exit) {
         const { action } = await inquirer.prompt([
