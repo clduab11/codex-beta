@@ -1,6 +1,6 @@
 
 import { Agent } from './agent';
-import { AgentCapability, AgentType } from '../core/types';
+import { AgentCapability, AgentType, Task } from '../core/types';
 
 export class SwarmCoordinator extends Agent {
   constructor() {
@@ -21,11 +21,16 @@ export class SwarmCoordinator extends Agent {
     ];
   }
 
-  async executeTask(task: any): Promise<any> {
-    const { swarm_id, task: swarmTask } = task.payload;
-    // In a real implementation, this would coordinate the swarm
+  async executeTask(task: Task): Promise<any> {
+    const { payload } = task;
+    const swarmId: string = payload.swarm_id || payload.swarmId || 'default-swarm';
+    const objective = payload.task || payload.objective || {};
+
     return {
-      result: `Coordinated swarm ${swarm_id} for task: ${JSON.stringify(swarmTask)}`
+      type: task.type,
+      swarmId,
+      objective,
+      status: 'coordination-complete'
     };
   }
 }

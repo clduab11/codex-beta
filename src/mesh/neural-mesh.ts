@@ -13,6 +13,12 @@ export class NeuralMesh extends EventEmitter {
   private topology: string = 'mesh';
   private updateInterval?: NodeJS.Timeout;
   private isRunning = false;
+  private maxConnections = 5;
+  private readonly updateIntervalMs = 5000;
+  private maxRunDurationMs = 60 * 60 * 1000;
+  private runTimeout?: NodeJS.Timeout;
+  private runStartedAt?: number;
+  private dynamicUpdatesActive = false;
 
   constructor(private agentRegistry: AgentRegistry) {
     super();
@@ -23,11 +29,7 @@ export class NeuralMesh extends EventEmitter {
     this.logger.info('neural-mesh', 'Initializing neural mesh...');
     
     this.isRunning = true;
-    
-    // Start topology update loop
-    this.updateInterval = setInterval(() => {
-      this.updateTopology();
-    }, 5000); // Update every 5 seconds
+    this.activateUpdates('initialize');
 
     this.setupEventHandlers();
     
@@ -38,15 +40,35 @@ export class NeuralMesh extends EventEmitter {
     this.logger.info('neural-mesh', 'Shutting down neural mesh...');
     
     this.isRunning = false;
-    
-    if (this.updateInterval) {
-      clearInterval(this.updateInterval);
-      this.updateInterval = undefined;
-    }
+
+    this.stopDynamicUpdates('manual');
 
     this.nodes.clear();
     
     this.logger.info('neural-mesh', 'Neural mesh shutdown complete');
+  }
+
+  configure(options: {
+    topology?: string;
+    maxConnections?: number;
+    desiredNodeCount?: number;
+  }): void {
+    if (options.topology) {
+      this.topology = options.topology;
+    }
+    if (options.maxConnections) {
+      this.maxConnections = Math.max(1, options.maxConnections);
+    }
+
+    if (options.desiredNodeCount && options.desiredNodeCount > this.nodes.size) {
+      this.logger.debug('neural-mesh', 'Mesh has fewer nodes than desired configuration', {
+        desired: options.desiredNodeCount,
+        actual: this.nodes.size
+      });
+    }
+
+    this.rebuildConnections();
+    this.activateUpdates('configure');
   }
 
   private setupEventHandlers(): void {
@@ -73,7 +95,7 @@ export class NeuralMesh extends EventEmitter {
     };
 
     this.nodes.set(agentId.id, node);
-    this.establishConnections(node);
+    this.rebuildConnections();
     
     this.logger.info('neural-mesh', 'Node added to mesh', { agentId: agentId.id });
     this.emit('nodeAdded', node);
@@ -91,9 +113,10 @@ export class NeuralMesh extends EventEmitter {
     }
 
     this.nodes.delete(agentId.id);
-    
+
     this.logger.info('neural-mesh', 'Node removed from mesh', { agentId: agentId.id });
     this.emit('nodeRemoved', agentId);
+    this.rebuildConnections();
   }
 
   private generateRandomPosition(): number[] {
@@ -101,13 +124,12 @@ export class NeuralMesh extends EventEmitter {
   }
 
   private establishConnections(node: NeuralMeshNode): void {
-    const maxConnections = 5;
     const allNodes = Array.from(this.nodes.values()).filter(n => n.agent.id !== node.agent.id);
     
     // Connect to nearby nodes (simplified - in reality would use more sophisticated algorithms)
     const nearbyNodes = allNodes
       .sort(() => Math.random() - 0.5) // Random for now
-      .slice(0, Math.min(maxConnections, allNodes.length));
+      .slice(0, Math.min(this.maxConnections, allNodes.length));
 
     for (const targetNode of nearbyNodes) {
       const connection: Connection = {
@@ -127,8 +149,20 @@ export class NeuralMesh extends EventEmitter {
     });
   }
 
+  private rebuildConnections(): void {
+    for (const node of this.nodes.values()) {
+      node.connections = [];
+    }
+
+    for (const node of this.nodes.values()) {
+      this.establishConnections(node);
+    }
+
+    this.emit('topologyUpdated', this.getTopology());
+  }
+
   private updateTopology(): void {
-    if (!this.isRunning) return;
+    if (!this.isRunning || !this.dynamicUpdatesActive) return;
 
     // Update node states and connection weights based on activity
     for (const node of this.nodes.values()) {
@@ -180,7 +214,94 @@ export class NeuralMesh extends EventEmitter {
       nodeCount: this.nodes.size,
       connectionCount: this.getConnectionCount(),
       averageConnections: this.getAverageConnections(),
-      topology: this.topology
+      topology: this.topology,
+      runActive: this.dynamicUpdatesActive,
+      runStartedAt: this.runStartedAt ? new Date(this.runStartedAt) : undefined,
+      maxRunDurationMs: this.maxRunDurationMs,
+      remainingTimeMs: this.runStartedAt ? Math.max(0, this.maxRunDurationMs - (Date.now() - this.runStartedAt)) : undefined
     };
+  }
+
+  setMaxRunDuration(durationMs: number): void {
+    if (!Number.isFinite(durationMs) || durationMs <= 0) {
+      this.maxRunDurationMs = 0;
+      this.clearRunTimeout();
+      return;
+    }
+
+    this.maxRunDurationMs = durationMs;
+    if (this.dynamicUpdatesActive) {
+      this.scheduleRunTimeout();
+    }
+  }
+
+  private activateUpdates(trigger: 'initialize' | 'configure' | 'manual'): void {
+    if (this.updateInterval) {
+      this.runStartedAt = Date.now();
+      this.scheduleRunTimeout();
+      return;
+    }
+
+    this.dynamicUpdatesActive = true;
+    this.runStartedAt = Date.now();
+    this.updateInterval = setInterval(() => {
+      this.updateTopology();
+    }, this.updateIntervalMs);
+    this.scheduleRunTimeout();
+    this.logger.info('neural-mesh', 'Topology updates activated', {
+      trigger,
+      maxRunDurationMs: this.maxRunDurationMs
+    });
+    this.emit('runStarted', { trigger, startedAt: new Date(this.runStartedAt) });
+  }
+
+  private stopDynamicUpdates(reason: 'manual' | 'timeout'): void {
+    if (this.updateInterval) {
+      clearInterval(this.updateInterval);
+      this.updateInterval = undefined;
+    }
+
+    this.clearRunTimeout();
+
+    if (!this.dynamicUpdatesActive && reason === 'manual') {
+      return;
+    }
+
+    const startedAt = this.runStartedAt;
+    const durationMs = startedAt ? Date.now() - startedAt : undefined;
+    this.dynamicUpdatesActive = false;
+    this.runStartedAt = undefined;
+
+    if (reason === 'timeout') {
+      this.logger.warn('neural-mesh', 'Topology updates stopped due to max runtime', {
+        maxRunDurationMs: this.maxRunDurationMs,
+        durationMs
+      });
+    } else {
+      this.logger.info('neural-mesh', 'Topology updates stopped');
+    }
+
+    this.emit('runStopped', { reason, durationMs, startedAt: startedAt ? new Date(startedAt) : undefined });
+    this.emit('topologyUpdated', this.getTopology());
+  }
+
+  private scheduleRunTimeout(): void {
+    this.clearRunTimeout();
+
+    if (!Number.isFinite(this.maxRunDurationMs) || this.maxRunDurationMs <= 0 || !this.dynamicUpdatesActive) {
+      return;
+    }
+
+    this.runTimeout = setTimeout(() => {
+      this.logger.warn('neural-mesh', 'Mesh orchestration exceeded configured max duration; stopping');
+      this.stopDynamicUpdates('timeout');
+    }, this.maxRunDurationMs);
+  }
+
+  private clearRunTimeout(): void {
+    if (this.runTimeout) {
+      clearTimeout(this.runTimeout);
+      this.runTimeout = undefined;
+    }
   }
 }

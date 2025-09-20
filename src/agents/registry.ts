@@ -11,8 +11,12 @@ export class AgentRegistry extends EventEmitter {
   private logger = Logger.getInstance();
   private agents: Map<string, AgentMetadata> = new Map();
   private agentsByType: Map<AgentType, Set<string>> = new Map();
+  private agentInstances: Map<string, Agent> = new Map();
   private heartbeatInterval?: NodeJS.Timeout;
+  private idleHeartbeatInterval?: NodeJS.Timeout;
   private isRunning = false;
+  private readonly idleHeartbeatPublishIntervalMs = 20000;
+  private readonly idleHeartbeatRefreshThresholdMs = 45000;
 
   constructor() {
     super();
@@ -34,6 +38,10 @@ export class AgentRegistry extends EventEmitter {
       this.checkAgentHeartbeats();
     }, 30000); // Check every 30 seconds
 
+    this.idleHeartbeatInterval = setInterval(() => {
+      this.publishIdleHeartbeats();
+    }, this.idleHeartbeatPublishIntervalMs);
+
     this.logger.info('registry', 'Agent registry initialized');
   }
 
@@ -47,6 +55,11 @@ export class AgentRegistry extends EventEmitter {
       this.heartbeatInterval = undefined;
     }
 
+    if (this.idleHeartbeatInterval) {
+      clearInterval(this.idleHeartbeatInterval);
+      this.idleHeartbeatInterval = undefined;
+    }
+
     // Notify all agents of shutdown
     for (const agent of this.agents.values()) {
       this.emit('systemShutdown', agent.id);
@@ -56,7 +69,9 @@ export class AgentRegistry extends EventEmitter {
   }
 
   register(agent: Agent): void {
-    this.registerAgent(agent.getMetadata());
+    const metadata = agent.getMetadata();
+    this.agentInstances.set(metadata.id.id, agent);
+    this.registerAgent(metadata);
   }
 
   registerAgent(metadata: AgentMetadata): void {
@@ -67,9 +82,9 @@ export class AgentRegistry extends EventEmitter {
       return;
     }
 
-    // Add to main registry
+    // Add to main registry (clone to avoid external mutation if plain object passed)
     this.agents.set(agentId, metadata);
-    
+
     // Add to type-specific registry
     const typeSet = this.agentsByType.get(metadata.id.type);
     if (typeSet) {
@@ -94,12 +109,14 @@ export class AgentRegistry extends EventEmitter {
 
     // Remove from main registry
     this.agents.delete(agentId.id);
-    
+
     // Remove from type-specific registry
     const typeSet = this.agentsByType.get(agent.id.type);
     if (typeSet) {
       typeSet.delete(agentId.id);
     }
+
+    this.agentInstances.delete(agentId.id);
 
     this.logger.info('registry', 'Agent unregistered', { agentId: agentId.id });
     this.emit('agentUnregistered', agentId);
@@ -115,6 +132,11 @@ export class AgentRegistry extends EventEmitter {
     const oldStatus = agent.status;
     agent.status = status;
     agent.lastUpdated = new Date();
+
+    const instance = this.agentInstances.get(agentId.id);
+    if (instance) {
+      instance.setStatus(status);
+    }
 
     this.logger.debug('registry', 'Agent status updated', { 
       agentId: agentId.id, 
@@ -180,6 +202,11 @@ export class AgentRegistry extends EventEmitter {
     }
 
     agent.lastUpdated = new Date();
+
+    const instance = this.agentInstances.get(agentId.id);
+    if (instance) {
+      instance.heartbeat();
+    }
     
     this.logger.debug('registry', 'Heartbeat received', { 
       agentId: agentId.id, 
@@ -211,8 +238,42 @@ export class AgentRegistry extends EventEmitter {
     }
   }
 
+  private publishIdleHeartbeats(): void {
+    if (!this.isRunning) {
+      return;
+    }
+
+    const now = Date.now();
+
+    for (const agent of this.agents.values()) {
+      if (agent.status !== AgentStatus.IDLE) {
+        continue;
+      }
+
+      const elapsed = now - agent.lastUpdated.getTime();
+      if (elapsed < this.idleHeartbeatRefreshThresholdMs) {
+        continue;
+      }
+
+      this.logger.debug('registry', 'Publishing synthetic heartbeat for idle agent', {
+        agentId: agent.id.id,
+        idleSeconds: Math.floor(elapsed / 1000)
+      });
+
+      this.reportHeartbeat(agent.id, { synthetic: true });
+    }
+  }
+
   getAllAgents(): AgentMetadata[] {
     return Array.from(this.agents.values());
+  }
+
+  getAgentInstance(agentId: AgentId): Agent | undefined {
+    return this.agentInstances.get(agentId.id);
+  }
+
+  getAgentByStringId(agentId: string): AgentMetadata | undefined {
+    return this.agents.get(agentId);
   }
 
   getAgentCount(): number {

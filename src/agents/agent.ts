@@ -1,5 +1,12 @@
 
-import { AgentId, AgentType, AgentCapability, AgentMetadata, AgentStatus } from '../core/types';
+import {
+  AgentId,
+  AgentType,
+  AgentCapability,
+  AgentMetadata,
+  AgentStatus,
+  Task
+} from '../core/types';
 import { v4 as uuidv4 } from 'uuid';
 
 export abstract class Agent {
@@ -38,7 +45,7 @@ export abstract class Agent {
 
   abstract getCapabilities(): AgentCapability[];
 
-  abstract executeTask(task: any): Promise<any>;
+  abstract executeTask(task: Task): Promise<any>;
 
   getId(): AgentId {
     return this.id;
@@ -50,5 +57,15 @@ export abstract class Agent {
 
   getStatus(): AgentStatus {
     return this.status;
+  }
+
+  setStatus(status: AgentStatus): void {
+    this.status = status;
+    this.metadata.status = status;
+    this.metadata.lastUpdated = new Date();
+  }
+
+  heartbeat(): void {
+    this.metadata.lastUpdated = new Date();
   }
 }

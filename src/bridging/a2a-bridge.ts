@@ -35,10 +35,10 @@ export class A2ABridge extends EventEmitter {
     };
   }
 
-  async sendMessage(from: AgentId, to: AgentId, message: any): Promise<void> {
+  async sendMessage(from: AgentId, to: AgentId, _message: unknown): Promise<void> {
     this.logger.info('a2a-bridge', `Sending message from ${from.id} to ${to.id}`);
     // In a real implementation, this would send the message to the target agent
-    await new Promise(resolve => setTimeout(resolve, 100));
+    await new Promise((resolve) => setTimeout(resolve, 100));
     this.logger.info('a2a-bridge', 'Message sent successfully');
   }
 }

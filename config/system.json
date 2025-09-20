@@ -20,17 +20,23 @@
   "mesh": {
     "maxConnections": 10,
     "updateInterval": 5000,
-    "topology": "mesh"
+    "topology": "mesh",
+    "maxRunDurationMs": 3600000
   },
   "swarm": {
     "defaultAlgorithm": "pso",
     "maxIterations": 1000,
-    "convergenceThreshold": 0.01
+    "convergenceThreshold": 0.01,
+    "maxRunDurationMs": 3600000
   },
   "consensus": {
     "mechanism": "raft",
     "timeout": 10000,
     "minVotes": 3
+  },
+  "gpu": {
+    "probeCacheTtlMs": 300000,
+    "disableProbeCache": false
   },
   "bridges": {
     "mcp": {

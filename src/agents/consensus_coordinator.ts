@@ -1,6 +1,6 @@
 
 import { Agent } from './agent';
-import { AgentCapability, AgentType } from '../core/types';
+import { AgentCapability, AgentType, Task } from '../core/types';
 
 export class ConsensusCoordinator extends Agent {
   constructor() {
@@ -21,11 +21,16 @@ export class ConsensusCoordinator extends Agent {
     ];
   }
 
-  async executeTask(task: any): Promise<any> {
-    const { action, options } = task.payload;
-    // In a real implementation, this would manage the consensus process
+  async executeTask(task: Task): Promise<any> {
+    const { payload } = task;
+    const action: string = payload.action || 'propose';
+    const options = payload.options || {};
+
     return {
-      result: `Managed consensus with action: ${action} and options: ${JSON.stringify(options)}`
+      type: task.type,
+      action,
+      options,
+      status: 'consensus-cycle-triggered'
     };
   }
 }

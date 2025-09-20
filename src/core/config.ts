@@ -29,11 +29,13 @@ export interface SystemConfiguration {
     maxConnections: number;
     updateInterval: number;
     topology: 'ring' | 'mesh' | 'star' | 'tree';
+    maxRunDurationMs: number;
   };
   swarm: {
     defaultAlgorithm: 'pso' | 'aco' | 'flocking';
     maxIterations: number;
     convergenceThreshold: number;
+    maxRunDurationMs: number;
   };
   consensus: {
     mechanism: 'raft' | 'bft' | 'pow' | 'pos';
@@ -49,6 +51,10 @@ export interface SystemConfiguration {
       enabled: boolean;
       discoveryInterval: number;
     };
+  };
+  gpu?: {
+    probeCacheTtlMs: number;
+    disableProbeCache: boolean;
   };
 }
 
@@ -81,12 +87,14 @@ export class ConfigurationManager {
       mesh: {
         maxConnections: 10,
         updateInterval: 5000,
-        topology: 'mesh'
+        topology: 'mesh',
+        maxRunDurationMs: 3600000
       },
       swarm: {
         defaultAlgorithm: 'pso',
         maxIterations: 1000,
-        convergenceThreshold: 0.01
+        convergenceThreshold: 0.01,
+        maxRunDurationMs: 3600000
       },
       consensus: {
         mechanism: 'raft',
@@ -102,6 +110,10 @@ export class ConfigurationManager {
           enabled: true,
           discoveryInterval: 60000
         }
+      },
+      gpu: {
+        probeCacheTtlMs: 300000,
+        disableProbeCache: false
       }
     };
   }
@@ -172,6 +184,14 @@ export class ConfigurationManager {
       errors.push('system.heartbeatInterval must be at least 1000ms');
     }
 
+    if (this.config.mesh.maxRunDurationMs < 0) {
+      errors.push('mesh.maxRunDurationMs must be >= 0');
+    }
+
+    if (this.config.swarm.maxRunDurationMs < 0) {
+      errors.push('swarm.maxRunDurationMs must be >= 0');
+    }
+
     // Networking validation
     if (this.config.networking.defaultPort < 1 || this.config.networking.defaultPort > 65535) {
       errors.push('networking.defaultPort must be between 1 and 65535');
@@ -180,6 +200,12 @@ export class ConfigurationManager {
     // Consensus validation
     if (this.config.consensus.minVotes < 1) {
       errors.push('consensus.minVotes must be at least 1');
+    }
+
+    if (this.config.gpu) {
+      if (this.config.gpu.probeCacheTtlMs < 0) {
+        errors.push('gpu.probeCacheTtlMs must be >= 0');
+      }
     }
 
     if (errors.length > 0) {

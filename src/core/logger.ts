@@ -35,7 +35,7 @@ export class Logger {
     }
   }
 
-  static getInstance(component?: string): Logger {
+  static getInstance(_component?: string): Logger {
     if (!Logger.instance) {
       Logger.instance = new Logger();
     }

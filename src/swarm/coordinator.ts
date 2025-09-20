@@ -13,6 +13,9 @@ export class SwarmCoordinator extends EventEmitter {
   private currentConfiguration?: SwarmConfiguration;
   private optimizationInterval?: NodeJS.Timeout;
   private particles: Map<string, SwarmParticle> = new Map();
+  private maxRunDurationMs = 60 * 60 * 1000;
+  private runTimeout?: NodeJS.Timeout;
+  private runStartedAt?: number;
 
   constructor(private agentRegistry: AgentRegistry) {
     super();
@@ -38,6 +41,9 @@ export class SwarmCoordinator extends EventEmitter {
       this.optimizationInterval = undefined;
     }
 
+    this.clearRunTimeout();
+    this.runStartedAt = undefined;
+
     this.particles.clear();
     
     this.logger.info('swarm', 'Swarm coordinator shutdown complete');
@@ -56,6 +62,11 @@ export class SwarmCoordinator extends EventEmitter {
   startSwarm(config: SwarmConfiguration): void {
     this.currentConfiguration = config;
     
+    if (this.optimizationInterval) {
+      this.logger.warn('swarm', 'Swarm already active; restarting with new configuration');
+      this.stopSwarm('manual');
+    }
+
     this.logger.info('swarm', 'Starting swarm optimization', { 
       algorithm: config.algorithm,
       objectives: config.objectives
@@ -72,20 +83,40 @@ export class SwarmCoordinator extends EventEmitter {
       this.performOptimizationStep();
     }, 1000);
 
+    this.runStartedAt = Date.now();
+    this.scheduleRunTimeout();
+
     this.emit('swarmStarted', config);
   }
 
-  stopSwarm(): void {
+  stopSwarm(reason: 'manual' | 'timeout' = 'manual'): void {
     if (this.optimizationInterval) {
       clearInterval(this.optimizationInterval);
       this.optimizationInterval = undefined;
     }
 
+    this.clearRunTimeout();
+
     this.particles.clear();
     this.currentConfiguration = undefined;
 
-    this.logger.info('swarm', 'Swarm optimization stopped');
-    this.emit('swarmStopped');
+    const startedAt = this.runStartedAt;
+    const durationMs = startedAt ? Date.now() - startedAt : undefined;
+    this.runStartedAt = undefined;
+
+    if (reason === 'timeout') {
+      this.logger.warn('swarm', 'Swarm optimization stopped due to max runtime', {
+        maxRunDurationMs: this.maxRunDurationMs,
+        durationMs
+      });
+    } else {
+      this.logger.info('swarm', 'Swarm optimization stopped');
+    }
+
+    this.emit('swarmStopped', { reason, durationMs, startedAt: startedAt ? new Date(startedAt) : undefined });
+    if (reason === 'timeout') {
+      this.emit('swarmTimeout', { durationMs, maxRunDurationMs: this.maxRunDurationMs });
+    }
   }
 
   private addParticle(agentId: AgentId): void {
@@ -183,7 +214,6 @@ export class SwarmCoordinator extends EventEmitter {
   private performFlockingStep(): void {
     // Simplified flocking implementation
     const separationRadius = 10;
-    const alignmentRadius = 20;
     const cohesionRadius = 30;
 
     for (const particle of this.particles.values()) {
@@ -335,12 +365,51 @@ export class SwarmCoordinator extends EventEmitter {
       isRunning: this.isRunning,
       particleCount: this.particles.size,
       algorithm: this.currentConfiguration?.algorithm || 'none',
-      isOptimizing: !!this.optimizationInterval
+      isOptimizing: !!this.optimizationInterval,
+      runStartedAt: this.runStartedAt ? new Date(this.runStartedAt) : undefined,
+      maxRunDurationMs: this.maxRunDurationMs,
+      remainingTimeMs: this.runStartedAt ? Math.max(0, this.maxRunDurationMs - (Date.now() - this.runStartedAt)) : undefined
     };
   }
 
   getParticle(agentId: AgentId): SwarmParticle | undefined {
     return this.particles.get(agentId.id);
+  }
+
+  setMaxRunDuration(durationMs: number): void {
+    if (!Number.isFinite(durationMs) || durationMs <= 0) {
+      this.maxRunDurationMs = 0;
+      this.clearRunTimeout();
+      return;
+    }
+
+    this.maxRunDurationMs = durationMs;
+    if (this.runStartedAt) {
+      this.scheduleRunTimeout();
+    }
+  }
+
+  private scheduleRunTimeout(): void {
+    this.clearRunTimeout();
+    if (!this.runStartedAt) {
+      this.runStartedAt = Date.now();
+    }
+
+    if (!Number.isFinite(this.maxRunDurationMs) || this.maxRunDurationMs <= 0) {
+      return;
+    }
+
+    this.runTimeout = setTimeout(() => {
+      this.logger.warn('swarm', 'Swarm run exceeded configured max duration; stopping');
+      this.stopSwarm('timeout');
+    }, this.maxRunDurationMs);
+  }
+
+  private clearRunTimeout(): void {
+    if (this.runTimeout) {
+      clearTimeout(this.runTimeout);
+      this.runTimeout = undefined;
+    }
   }
 }
 

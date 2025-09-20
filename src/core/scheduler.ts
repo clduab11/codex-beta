@@ -4,7 +4,7 @@
 
 import { EventEmitter } from 'events';
 import { Logger } from './logger';
-import { Task, TaskStatus, AgentId, AgentType } from './types';
+import { Task, TaskStatus, AgentId } from './types';
 import { AgentRegistry } from '../agents/registry';
 
 // Simple UUID generator for testing

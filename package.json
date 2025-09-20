@@ -1,34 +1,35 @@
 {
-  "name": "codex-beta",
+  "name": "codex-synaptic",
   "version": "1.0.0",
-  "description": "Enhanced OpenAI Codex with MCP/A2A bridging, neural meshes, swarm coordination, and consensus mechanisms",
+  "description": "Advanced distributed AI agent orchestration system with neural mesh networking, swarm intelligence, and consensus mechanisms",
   "main": "dist/index.js",
   "bin": {
-    "codex-beta": "dist/cli/index.js"
+    "codex-synaptic": "dist/cli/index.js"
   },
   "scripts": {
     "build": "tsc",
     "dev": "ts-node src/index.ts",
     "start": "node dist/index.js",
-    "test": "node -e \"console.log('No tests configured')\"",
-    "lint": "eslint src/**/*.ts",
-    "lint:fix": "eslint src/**/*.ts --fix",
+    "test": "vitest run",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
     "format": "prettier --write src/**/*.ts",
     "cli": "ts-node src/cli/index.ts",
-    "prepare": "npm run build"
+    "prepare": "npm run build",
+    "test:watch": "vitest"
   },
   "keywords": [
-    "codex",
+    "codex-synaptic",
     "ai",
     "agents",
-    "mcp",
     "neural-mesh",
-    "swarm",
+    "swarm-intelligence",
     "consensus",
-    "blockchain",
-    "distributed-systems"
+    "distributed-systems",
+    "synaptic-networks",
+    "autonomous-agents"
   ],
-  "author": "codex-beta contributors",
+  "author": "Parallax Analytics <info@parallaxanalytics.io>",
   "license": "MIT",
   "devDependencies": {
     "@types/node": "^24.3.1",
@@ -39,7 +40,9 @@
     "nodemon": "^3.1.10",
     "prettier": "^3.6.2",
     "ts-node": "^10.9.2",
-    "typescript": "^5.9.2"
+    "typescript": "^5.9.2",
+    "globals": "^15.12.0",
+    "vitest": "^1.6.1"
   },
   "dependencies": {
     "chalk": "^5.6.2",

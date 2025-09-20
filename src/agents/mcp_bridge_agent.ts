@@ -1,9 +1,10 @@
 
 import { Agent } from './agent';
-import { AgentCapability, AgentType } from '../core/types';
+import { AgentCapability, AgentType, Task } from '../core/types';
+import { MCPBridge } from '../bridging/mcp-bridge';
 
 export class MCPBridgeAgent extends Agent {
-  constructor() {
+  constructor(private bridge: MCPBridge) {
     super(AgentType.MCP_BRIDGE);
   }
 
@@ -21,11 +22,16 @@ export class MCPBridgeAgent extends Agent {
     ];
   }
 
-  async executeTask(task: any): Promise<any> {
-    const { target_system, message } = task.payload;
-    // In a real implementation, this would bridge the message
+  async executeTask(task: Task): Promise<any> {
+    const { payload } = task;
+    const endpoint: string = payload.target_system || payload.endpoint || 'unknown';
+    const message = payload.message ?? {};
+
+    const response = await this.bridge.sendMessage(endpoint, message);
     return {
-      result: `Bridged message to ${target_system}: ${JSON.stringify(message)}`
+      type: task.type,
+      endpoint,
+      response
     };
   }
 }

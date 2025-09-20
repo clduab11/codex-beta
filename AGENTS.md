@@ -79,9 +79,18 @@ This document provides comprehensive guidance for AI agents, specifically optimi
 -   **Enterprise Infrastructure**: Despite being a consumer fantasy sports app, the project utilizes enterprise-grade infrastructure like Kubernetes and Terraform.
 -   **File-Based Secrets**: Secrets are managed via files within Docker, which is an unusual pattern.
 -   **Platform-Specific GPU**: GPU configurations differ for Apple Silicon (Metal) and NVIDIA.
+-   **Health Monitor Telemetry**: RSS-driven `memoryStatus` metrics now flow into telemetry so the CLI shows actual usage, limits, and headroom in real time.
+-   **Orchestration Ceiling**: Neural mesh and swarm runs auto-stop after the 60-minute ceiling (configurable via `mesh.maxRunDurationMs` and `swarm.maxRunDurationMs`) and emit timeout events.
+-   **Idle Heartbeats**: Registry-managed synthetic heartbeats keep idle agents from ageing out of the 90 s window, eliminating false offline warnings in `logs/registry.log`.
+-   **GPU Probe Cache**: `gpu.probeCacheTtlMs` memoizes expensive hardware probes, while `gpu.disableProbeCache` forces a fresh scan when diagnostics are required.
 -   **MCP Protocol Bridge**: Integrates external tools and services, enabling cross-protocol communication and enhanced routing.
 -   **A2A Messaging Protocol**: JSON-RPC 2.0 based communication for secure, efficient, and scalable agent coordination with consensus mechanisms and distributed memory.
 -   **Mesh Network Topology**: Self-organizing, fault-tolerant service discovery and dynamic load balancing across distributed agent clusters.
+-   **System Hardening Layer**: Core system now boots authentication, authorization middleware, global error handling, and resource governance (circuit breakers, rate limiting, auto-scaling hints) before exposing agent services.
+-   **CLI + Daemon Tooling**: Session-aware CLI tracks telemetry, manages workflows, and can spawn a background daemon via `background start/status/stop`, enabling long-running orchestration outside the interactive shell.
+-   **Persistent Storage & Logging**: Storage manager plus component-specific log streams (under `logs/`) capture workflow artifacts, hive-mind scans, and lifecycle events for replay and auditing.
+-   **Vitest-Based Verification**: Local test harness upgraded to Vitest with suites covering CLI lifecycle, command UX, configuration persistence, and swarm optimisation behaviour.
+-   **GPU Manager**: Unified detection for CUDA (NVIDIA) and MPS (Apple Metal) surfaces device metadata, sets environment hints, memoizes probes, and feeds telemetry for agent scheduling.
 
 ---
 
