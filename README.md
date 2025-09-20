@@ -1,4 +1,3 @@
-````markdown
 <div align="center">
 
 # 🧠 Codex-Synaptic
@@ -9,6 +8,8 @@
 [![Node.js](https://img.shields.io/badge/Node.js-43853D?logo=node.js&logoColor=white)](https://nodejs.org/)
 
 **Advanced Distributed AI Agent Orchestration System**
+
+<img width="2560" height="1440" alt="VeniceAI_WHENURo_@2x" src="https://github.com/user-attachments/assets/4e6bb1a5-41e4-4adb-8c37-86da5658fc7d" />
 
 *Neural Mesh Networking • Swarm Intelligence • Consensus Mechanisms*
 
