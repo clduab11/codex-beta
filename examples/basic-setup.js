@@ -1,17 +1,17 @@
 /**
- * Basic Codex-Beta System Setup Example
+ * Basic Codex-Synaptic System Setup Example
  * 
  * This example demonstrates how to initialize and use the basic system components.
  */
 
-const { CodexBetaSystem } = require('../dist/core/system');
+const { CodexSynapticSystem } = require('../dist/core/system');
 const { AgentType, TaskStatus } = require('../dist/core/types');
 
 async function basicSetupExample() {
-  console.log('🚀 Starting Codex-Beta System...');
+  console.log('🚀 Starting Codex-Synaptic System...');
   
   // Create system instance
-  const system = new CodexBetaSystem();
+  const system = new CodexSynapticSystem();
   
   try {
     // Initialize all components

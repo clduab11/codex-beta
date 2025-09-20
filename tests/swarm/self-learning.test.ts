@@ -1,11 +1,11 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { CodexBetaSystem } from '../../src/core/system';
+import { CodexSynapticSystem } from '../../src/core/system';
 
-let system: CodexBetaSystem;
+let system: CodexSynapticSystem;
 
 describe('Swarm self-learning capability', () => {
   beforeAll(async () => {
-    system = new CodexBetaSystem();
+    system = new CodexSynapticSystem();
     await system.initialize();
   });
 

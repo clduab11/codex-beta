@@ -1,15 +1,15 @@
-# Codex-Beta Examples
+# Codex-Synaptic Examples
 
-This directory contains practical examples of using the Codex-Beta system for various scenarios.
+This directory contains practical examples of using the Codex-Synaptic system for various scenarios.
 
 ## Basic Setup Example
 
 ```typescript
-import { CodexBetaSystem } from 'codex-beta';
+import { CodexSynapticSystem } from 'codex-synaptic';
 
 async function basicExample() {
   // Create and initialize the system
-  const system = new CodexBetaSystem();
+  const system = new CodexSynapticSystem();
   await system.initialize();
 
   // Get references to key components
@@ -45,7 +45,7 @@ const codeGenerationSwarm = {
 
 ```typescript
 // Example: Use consensus for distributed decision making
-async function consensusExample(system: CodexBetaSystem) {
+async function consensusExample(system: CodexSynapticSystem) {
   const consensusManager = system.getConsensusManager();
   
   // Propose a system upgrade
@@ -71,7 +71,7 @@ async function consensusExample(system: CodexBetaSystem) {
 
 ```typescript
 // Example: Create a self-organizing neural mesh
-async function neuralMeshExample(system: CodexBetaSystem) {
+async function neuralMeshExample(system: CodexSynapticSystem) {
   const mesh = system.getNeuralMesh();
   
   mesh.on('topologyChanged', (topology) => {
