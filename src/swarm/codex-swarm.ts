@@ -1,7 +1,7 @@
 import { randomUUID } from 'crypto';
-import { CoordinationStrategy } from '../coordination/coordination-engine';
-import { CodexQueen } from '../agents/queen-agent';
-import { AgentType } from '../agents/worker-types';
+import { CoordinationStrategy } from '../coordination/coordination-engine.js';
+import { CodexQueen } from '../agents/queen-agent.js';
+import { AgentType } from '../agents/worker-types.js';
 
 export interface CodexSwarmConfig {
   topology: 'hierarchical' | 'mesh' | 'ring' | 'star';

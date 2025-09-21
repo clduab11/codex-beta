@@ -1,3 +1,3 @@
 
-export * from './coordinator';
-export * from './codex-swarm';
+export * from './coordinator.js';
+export * from './codex-swarm.js';

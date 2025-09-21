@@ -1,6 +1,6 @@
-import { CodexWorker, AgentType, TaskResult } from './worker-types';
-import { CoordinationEngine, CoordinationStrategy, PlanStep } from '../coordination/coordination-engine';
-import { CodexMemorySystem } from '../memory/memory-system';
+import { CodexWorker, AgentType, TaskResult } from './worker-types.js';
+import { CoordinationEngine, CoordinationStrategy, PlanStep } from '../coordination/coordination-engine.js';
+import { CodexMemorySystem } from '../memory/memory-system.js';
 
 export class CodexQueen {
   private workers: Map<string, CodexWorker> = new Map();

@@ -1,6 +1,6 @@
 
-import { Agent } from './agent';
-import { AgentCapability, AgentType, Task } from '../core/types';
+import { Agent } from './agent.js';
+import { AgentCapability, AgentType, Task } from '../core/types.js';
 
 export class ConsensusCoordinator extends Agent {
   constructor() {

@@ -1,8 +1,8 @@
-# AGENTS.md - Codex-Beta Agent System Architecture
+# AGENTS.md - Codex-Synaptic Agent System Architecture
 
 ## Overview
 
-The Codex-Beta system enhances OpenAI's Codex with advanced multi-agent capabilities, featuring MCP/A2A bridging, neural meshes, swarm coordination, topological constraints, and various consensus mechanisms. This document outlines the comprehensive agent architecture and deployment strategies.
+The Codex-Synaptic system enhances OpenAI's Codex with advanced multi-agent capabilities, featuring MCP/A2A bridging, neural meshes, swarm coordination, topological constraints, and various consensus mechanisms. This document outlines the comprehensive agent architecture and deployment strategies.
 
 ## Core Agent Types
 
@@ -184,16 +184,16 @@ The command-line interface provides comprehensive deployment and management capa
 
 ```bash
 # Deploy a simple worker agent
-codex-beta deploy worker --type code --replicas 3
+codex-synaptic deploy worker --type code --replicas 3
 
 # Create a neural mesh with specific topology
-codex-beta mesh create --nodes 10 --topology ring --consensus raft
+codex-synaptic mesh create --nodes 10 --topology ring --consensus raft
 
 # Start swarm coordination with PSO optimization
-codex-beta swarm start --algorithm pso --agents worker:5,coordinator:2
+codex-synaptic swarm start --algorithm pso --agents worker:5,coordinator:2
 
 # Configure MCP bridging between systems
-codex-beta bridge mcp --source codex-api --target local-model --protocol grpc
+codex-synaptic bridge mcp --source codex-api --target local-model --protocol grpc
 ```
 
 ### Configuration Management
@@ -278,4 +278,4 @@ Consensus mechanism parameters:
 
 ## Conclusion
 
-The Codex-Beta agent system provides a comprehensive framework for enhancing OpenAI's Codex with advanced distributed computing capabilities. Through careful orchestration of various agent types, consensus mechanisms, and coordination patterns, the system can tackle complex computational challenges that require distributed intelligence, fault tolerance, and scalable coordination.
+The Codex-Synaptic agent system provides a comprehensive framework for enhancing OpenAI's Codex with advanced distributed computing capabilities. Through careful orchestration of various agent types, consensus mechanisms, and coordination patterns, the system can tackle complex computational challenges that require distributed intelligence, fault tolerance, and scalable coordination.

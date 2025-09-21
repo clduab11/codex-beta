@@ -1,10 +1,10 @@
 /**
- * Authentication and Authorization system for Codex-Beta
+ * Authentication and Authorization system for Codex-Synaptic
  */
 
 import { createHash, randomBytes, timingSafeEqual } from 'crypto';
-import { Logger } from './logger';
-import { CodexBetaError, ErrorCode } from './errors';
+import { Logger } from './logger.js';
+import { CodexSynapticError, ErrorCode } from './errors.js';
 
 export interface User {
   id: string;
@@ -124,7 +124,7 @@ export class AuthenticationManager {
     const adminUser: User = {
       id: 'admin-001',
       username: 'admin',
-      email: 'admin@codex-beta.local',
+      email: 'admin@codex-synaptic.local',
       roles: ['admin'],
       permissions: this.getUserPermissions(['admin']),
       createdAt: new Date()
@@ -181,7 +181,7 @@ export class AuthenticationManager {
     const user = Array.from(this.users.values()).find(u => u.username === username);
     if (!user) {
       this.logger.warn('auth', 'Authentication failed - user not found', { username });
-      throw new CodexBetaError(
+      throw new CodexSynapticError(
         ErrorCode.AGENT_NOT_FOUND,
         'Invalid credentials',
         { username },
@@ -193,7 +193,7 @@ export class AuthenticationManager {
     const storedHash = this.passwordHashes.get(user.id);
     if (!storedHash || !this.verifyPassword(password, storedHash)) {
       this.logger.warn('auth', 'Authentication failed - invalid password', { username });
-      throw new CodexBetaError(
+      throw new CodexSynapticError(
         ErrorCode.AGENT_NOT_FOUND,
         'Invalid credentials',
         { username },
@@ -229,7 +229,7 @@ export class AuthenticationManager {
   async validateToken(token: string): Promise<User> {
     const authToken = this.tokens.get(token);
     if (!authToken) {
-      throw new CodexBetaError(
+      throw new CodexSynapticError(
         ErrorCode.AGENT_NOT_FOUND,
         'Invalid token',
         { token: token.substring(0, 8) + '...' },
@@ -240,7 +240,7 @@ export class AuthenticationManager {
     // Check expiration
     if (authToken.expiresAt < new Date()) {
       this.tokens.delete(token);
-      throw new CodexBetaError(
+      throw new CodexSynapticError(
         ErrorCode.AGENT_TIMEOUT,
         'Token expired',
         { token: token.substring(0, 8) + '...' },
@@ -254,7 +254,7 @@ export class AuthenticationManager {
     const user = this.users.get(authToken.userId);
     if (!user) {
       this.tokens.delete(token);
-      throw new CodexBetaError(
+      throw new CodexSynapticError(
         ErrorCode.AGENT_NOT_FOUND,
         'User not found for token',
         { userId: authToken.userId },
@@ -306,7 +306,7 @@ export class AuthenticationManager {
     // Check if username already exists
     const existingUser = Array.from(this.users.values()).find(u => u.username === userData.username);
     if (existingUser) {
-      throw new CodexBetaError(
+      throw new CodexSynapticError(
         ErrorCode.AGENT_EXECUTION_FAILED,
         'Username already exists',
         { username: userData.username },
@@ -317,7 +317,7 @@ export class AuthenticationManager {
     // Validate roles
     const invalidRoles = userData.roles.filter(role => !this.roles.has(role));
     if (invalidRoles.length > 0) {
-      throw new CodexBetaError(
+      throw new CodexSynapticError(
         ErrorCode.AGENT_EXECUTION_FAILED,
         'Invalid roles specified',
         { invalidRoles },
@@ -393,7 +393,7 @@ export class AuthMiddleware {
 
   async authenticate(token?: string): Promise<User> {
     if (!token) {
-      throw new CodexBetaError(
+      throw new CodexSynapticError(
         ErrorCode.AGENT_NOT_FOUND,
         'Authentication required',
         undefined,
@@ -407,7 +407,7 @@ export class AuthMiddleware {
   async authorize(user: User, resource: string, action: string): Promise<void> {
     const authorized = await this.authManager.authorize(user, resource, action);
     if (!authorized) {
-      throw new CodexBetaError(
+      throw new CodexSynapticError(
         ErrorCode.AGENT_EXECUTION_FAILED,
         'Insufficient permissions',
         { resource, action, userRoles: user.roles },

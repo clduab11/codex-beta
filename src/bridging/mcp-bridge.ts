@@ -3,7 +3,7 @@
  */
 
 import { EventEmitter } from 'events';
-import { Logger } from '../core/logger';
+import { Logger } from '../core/logger.js';
 
 export class MCPBridge extends EventEmitter {
   private logger = Logger.getInstance();

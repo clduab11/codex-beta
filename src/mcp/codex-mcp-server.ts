@@ -1,5 +1,5 @@
-import { MCPTool } from './types';
-import { SwarmInitTool } from './tools/swarm-init';
+import { MCPTool } from './types.js';
+import { SwarmInitTool } from './tools/swarm-init.js';
 
 export class CodexMCPServer {
   private tools: Map<string, MCPTool> = new Map();

@@ -1,13 +1,13 @@
 services:
-  codex-beta:
+  codex-synaptic:
     build:
       context: .
       target: production
-    image: codex-beta:production
+    image: codex-synaptic:production
     command: ["node", "dist/index.js"]
     environment:
       NODE_ENV: production
-      CODEX_BETA_LOG_LEVEL: info
+      CODEX_SYNAPTIC_LOG_LEVEL: info
     volumes:
       - codex-config:/app/config
       - codex-logs:/app/logs
@@ -15,15 +15,15 @@ services:
       - "8080:8080"
     restart: unless-stopped
 
-  codex-beta-dev:
+  codex-synaptic-dev:
     build:
       context: .
       target: development
-    image: codex-beta:development
+    image: codex-synaptic:development
     command: ["sh", "-c", "npm install && npm run dev"]
     environment:
       NODE_ENV: development
-      CODEX_BETA_LOG_LEVEL: debug
+      CODEX_SYNAPTIC_LOG_LEVEL: debug
     volumes:
       - ./:/app
       - codex-config:/app/config

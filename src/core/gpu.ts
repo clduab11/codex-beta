@@ -1,7 +1,7 @@
 import { EventEmitter } from 'events';
 import { spawnSync } from 'child_process';
 import os from 'os';
-import { Logger } from './logger';
+import { Logger } from './logger.js';
 
 export type GPUBackend = 'cuda' | 'mps';
 

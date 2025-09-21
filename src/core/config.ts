@@ -1,11 +1,11 @@
 /**
- * Configuration management for Codex-Beta system
+ * Configuration management for Codex-Synaptic system
  */
 
 import { readFile, writeFile, existsSync, mkdirSync } from 'fs';
 import { promisify } from 'util';
 import { join } from 'path';
-import { Logger } from './logger';
+import { Logger } from './logger.js';
 
 const readFileAsync = promisify(readFile);
 const writeFileAsync = promisify(writeFile);

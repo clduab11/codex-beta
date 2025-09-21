@@ -1,10 +1,10 @@
 /**
- * Resource management and rate limiting for Codex-Beta
+ * Resource management and rate limiting for Codex-Synaptic
  */
 
 import { EventEmitter } from 'events';
-import { Logger } from './logger';
-import { GPUStatus } from './gpu';
+import { Logger } from './logger.js';
+import { GPUStatus } from './gpu.js';
 
 export interface ResourceLimits {
   maxMemoryMB: number;

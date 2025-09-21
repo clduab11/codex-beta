@@ -3,9 +3,9 @@
  */
 
 import { EventEmitter } from 'events';
-import { Logger } from './logger';
-import { Task, TaskStatus, AgentId } from './types';
-import { AgentRegistry } from '../agents/registry';
+import { Logger } from './logger.js';
+import { Task, TaskStatus, AgentId } from './types.js';
+import { AgentRegistry } from '../agents/registry.js';
 
 // Simple UUID generator for testing
 function generateUUID(): string {

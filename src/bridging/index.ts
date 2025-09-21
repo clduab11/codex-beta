@@ -1,3 +1,3 @@
 
-export * from './a2a-bridge';
-export * from './mcp-bridge';
+export * from './a2a-bridge.js';
+export * from './mcp-bridge.js';

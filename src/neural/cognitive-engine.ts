@@ -1,4 +1,4 @@
-import { WASMNeuralLoader } from './wasm-loader';
+import { WASMNeuralLoader } from './wasm-loader.js';
 
 export class CognitiveEngine {
   private models: Map<string, any> = new Map();

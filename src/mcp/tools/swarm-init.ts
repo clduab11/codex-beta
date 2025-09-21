@@ -1,5 +1,5 @@
-import { MCPTool } from '../types';
-import { CodexSwarm } from '../../swarm/codex-swarm';
+import { MCPTool } from '../types.js';
+import { CodexSwarm } from '../../swarm/codex-swarm.js';
 
 export class SwarmInitTool implements MCPTool {
   name = 'swarm_init';

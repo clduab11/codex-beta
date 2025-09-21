@@ -1,7 +1,7 @@
 /**
- * Minimal storage system for Codex-Beta
+ * Minimal storage system for Codex-Synaptic
  */
-import { Logger } from './logger';
+import { Logger } from './logger.js';
 
 export class MemoryStorage {
   private logger = Logger.getInstance();

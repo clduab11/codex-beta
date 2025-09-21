@@ -1,14 +1,14 @@
-import { Logger } from '../core/logger';
+import { Logger } from '../core/logger.js';
 import {
   AgentCapability,
   AgentId,
   AgentStatus,
   AgentType,
   Task
-} from '../core/types';
-import { A2ABridge } from '../bridging/a2a-bridge';
-import { AgentRegistry } from './registry';
-import { Agent } from './agent';
+} from '../core/types.js';
+import { A2ABridge } from '../bridging/a2a-bridge.js';
+import { AgentRegistry } from './registry.js';
+import { Agent } from './agent.js';
 
 const CAPABILITIES: AgentCapability[] = [
   {

@@ -3,9 +3,9 @@
  */
 
 import { EventEmitter } from 'events';
-import { Logger } from '../core/logger';
-import { AgentId, AgentMetadata, AgentStatus, Task, AgentType } from '../core/types';
-import { Agent } from './agent';
+import { Logger } from '../core/logger.js';
+import { AgentId, AgentMetadata, AgentStatus, Task, AgentType } from '../core/types.js';
+import { Agent } from './agent.js';
 
 export class AgentRegistry extends EventEmitter {
   private logger = Logger.getInstance();

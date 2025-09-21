@@ -1,7 +1,7 @@
 
-import { Agent } from './agent';
-import { AgentCapability, AgentType, Task } from '../core/types';
-import { MCPBridge } from '../bridging/mcp-bridge';
+import { Agent } from './agent.js';
+import { AgentCapability, AgentType, Task } from '../core/types.js';
+import { MCPBridge } from '../bridging/mcp-bridge.js';
 
 export class MCPBridgeAgent extends Agent {
   constructor(private bridge: MCPBridge) {

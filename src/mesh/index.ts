@@ -1,2 +1,2 @@
 
-export * from './neural-mesh';
+export * from './neural-mesh.js';

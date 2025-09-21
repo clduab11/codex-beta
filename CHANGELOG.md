@@ -14,7 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Star history chart integration
 
 ### Changed
-- Project name from "codex-beta" to "codex-synaptic"
+- Project name from "codex-synaptic" to "codex-synaptic"
 - Author attribution to Parallax Analytics
 - Updated project description to emphasize distributed AI orchestration
 - Enhanced documentation with neural networking concepts
@@ -76,7 +76,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Version History Summary
 
 - **v2.0.0**: Major rebranding to Codex-Synaptic with enhanced neural mesh concepts
-- **v1.0.0**: Original codex-beta distributed AI system foundation
+- **v1.0.0**: Original codex-synaptic distributed AI system foundation
 
 ## Release Philosophy
 

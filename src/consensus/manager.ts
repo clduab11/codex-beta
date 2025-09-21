@@ -3,9 +3,9 @@
  */
 
 import { EventEmitter } from 'events';
-import { Logger } from '../core/logger';
-import { AgentRegistry } from '../agents/registry';
-import { ConsensusProposal, ConsensusVote, AgentId } from '../core/types';
+import { Logger } from '../core/logger.js';
+import { AgentRegistry } from '../agents/registry.js';
+import { ConsensusProposal, ConsensusVote, AgentId } from '../core/types.js';
 
 // Simple UUID generator for testing
 function generateUUID(): string {

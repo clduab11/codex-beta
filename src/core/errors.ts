@@ -1,5 +1,5 @@
 /**
- * Comprehensive error handling system for Codex-Beta
+ * Comprehensive error handling system for Codex-Synaptic
  */
 
 export enum ErrorCode {
@@ -38,7 +38,7 @@ export enum ErrorCode {
   A2A_ERROR = 'A2A_ERROR'
 }
 
-export class CodexBetaError extends Error {
+export class CodexSynapticError extends Error {
   public readonly code: ErrorCode;
   public readonly timestamp: Date;
   public readonly context?: Record<string, any>;
@@ -51,7 +51,7 @@ export class CodexBetaError extends Error {
     retryable: boolean = false
   ) {
     super(message);
-    this.name = 'CodexBetaError';
+    this.name = 'CodexSynapticError';
     this.code = code;
     this.timestamp = new Date();
     this.context = context;
@@ -59,7 +59,7 @@ export class CodexBetaError extends Error {
 
     // Maintains proper stack trace for where our error was thrown
     if (Error.captureStackTrace) {
-      Error.captureStackTrace(this, CodexBetaError);
+      Error.captureStackTrace(this, CodexSynapticError);
     }
   }
 
@@ -76,35 +76,35 @@ export class CodexBetaError extends Error {
   }
 }
 
-export class SystemError extends CodexBetaError {
+export class SystemError extends CodexSynapticError {
   constructor(message: string, context?: Record<string, any>) {
     super(ErrorCode.SYSTEM_NOT_INITIALIZED, message, context, false);
     this.name = 'SystemError';
   }
 }
 
-export class AgentError extends CodexBetaError {
+export class AgentError extends CodexSynapticError {
   constructor(code: ErrorCode, message: string, context?: Record<string, any>, retryable: boolean = true) {
     super(code, message, context, retryable);
     this.name = 'AgentError';
   }
 }
 
-export class TaskError extends CodexBetaError {
+export class TaskError extends CodexSynapticError {
   constructor(code: ErrorCode, message: string, context?: Record<string, any>, retryable: boolean = true) {
     super(code, message, context, retryable);
     this.name = 'TaskError';
   }
 }
 
-export class ConsensusError extends CodexBetaError {
+export class ConsensusError extends CodexSynapticError {
   constructor(message: string, context?: Record<string, any>) {
     super(ErrorCode.CONSENSUS_FAILED, message, context, true);
     this.name = 'ConsensusError';
   }
 }
 
-export class BridgeError extends CodexBetaError {
+export class BridgeError extends CodexSynapticError {
   constructor(code: ErrorCode, message: string, context?: Record<string, any>) {
     super(code, message, context, true);
     this.name = 'BridgeError';
@@ -130,7 +130,7 @@ export class CircuitBreaker {
       if (this.shouldAttemptReset()) {
         this.state = 'HALF_OPEN';
       } else {
-        throw new CodexBetaError(
+        throw new CodexSynapticError(
           ErrorCode.SYSTEM_OVERLOAD,
           'Circuit breaker is OPEN',
           { failures: this.failures, state: this.state },
@@ -201,7 +201,7 @@ export class RetryManager {
         }
 
         // Don't retry non-retryable errors
-        if (error instanceof CodexBetaError && !error.retryable) {
+        if (error instanceof CodexSynapticError && !error.retryable) {
           throw error;
         }
 

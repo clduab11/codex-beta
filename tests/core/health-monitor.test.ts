@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { HealthMonitor } from '../../src/core/health';
 import { MemoryStatus, ResourceUsage } from '../../src/core/resources';
-import { CodexBetaSystem } from '../../src/core/system';
+import { CodexSynapticSystem } from '../../src/core/system';
 
 const createResourceManagerStub = (memoryStatus: MemoryStatus) => ({
   getLimits: () => ({
@@ -84,7 +84,7 @@ describe('HealthMonitor memory checks', () => {
       getConsensusManager: () => createComponentStub({ isRunning: true, activeProposals: 0, totalVotes: 0 }),
       getMCPBridge: () => createComponentStub({ isRunning: true, connectedEndpoints: [] }),
       getA2ABridge: () => createComponentStub({ isRunning: true, registeredAgents: 0 })
-    } as unknown as CodexBetaSystem;
+    } as unknown as CodexSynapticSystem;
 
     const monitor = new HealthMonitor(fakeSystem);
     const health = await monitor.getHealthStatus();
@@ -122,7 +122,7 @@ describe('HealthMonitor memory checks', () => {
       getConsensusManager: () => createComponentStub({ isRunning: true, activeProposals: 0, totalVotes: 0 }),
       getMCPBridge: () => createComponentStub({ isRunning: true, connectedEndpoints: [] }),
       getA2ABridge: () => createComponentStub({ isRunning: true, registeredAgents: 0 })
-    } as unknown as CodexBetaSystem;
+    } as unknown as CodexSynapticSystem;
 
     const monitor = new HealthMonitor(fakeSystem);
     const logger = (monitor as any).logger;

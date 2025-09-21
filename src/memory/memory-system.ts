@@ -1,10 +1,12 @@
 import sqlite3 from 'sqlite3';
+import { join } from 'path';
 
 export class CodexMemorySystem {
   private db: any;
 
   constructor() {
-    this.db = new sqlite3.Database('.codex-swarm/memory.db');
+    const dbPath = join(process.cwd(), '.codex-synaptic', 'memory.db');
+    this.db = new sqlite3.Database(dbPath);
     this.initializeTables();
   }
 

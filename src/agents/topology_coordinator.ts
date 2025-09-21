@@ -1,12 +1,12 @@
-import { Logger } from '../core/logger';
+import { Logger } from '../core/logger.js';
 import {
   AgentCapability,
   AgentStatus,
   AgentType,
   TopologyConstraint,
   Task
-} from '../core/types';
-import { Agent } from './agent';
+} from '../core/types.js';
+import { Agent } from './agent.js';
 
 const CAPABILITIES: AgentCapability[] = [
   {

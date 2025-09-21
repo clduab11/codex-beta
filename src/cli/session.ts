@@ -1,8 +1,8 @@
-import { CodexBetaSystem } from '../core/system';
-import { Logger } from '../core/logger';
-import { AgentRegistry } from '../agents/registry';
-import { Task } from '../core/types';
-import { ResourceUsage } from '../core/resources';
+import { CodexSynapticSystem } from '../core/system.js';
+import { Logger } from '../core/logger.js';
+import { AgentRegistry } from '../agents/registry.js';
+import { Task } from '../core/types.js';
+import { ResourceUsage } from '../core/resources.js';
 
 interface ProcessListener {
   signal: NodeJS.Signals | 'beforeExit';
@@ -33,7 +33,7 @@ export interface CliTelemetrySnapshot {
 }
 
 /**
- * Centralizes lifecycle management for a single CodexBetaSystem per CLI process.
+ * Centralizes lifecycle management for a single CodexSynapticSystem per CLI process.
  * Ensures clean startup/shutdown semantics, hooks process signals, and collects
  * lightweight telemetry for interactive commands without leaking globals.
  */
@@ -48,8 +48,8 @@ export class CliSession {
   }
 
   private readonly logger = Logger.getInstance();
-  private system?: CodexBetaSystem;
-  private startPromise?: Promise<CodexBetaSystem>;
+  private system?: CodexSynapticSystem;
+  private startPromise?: Promise<CodexSynapticSystem>;
   private processListeners: ProcessListener[] = [];
   private cleanupFns: Array<() => void> = [];
   private shuttingDown = false;
@@ -72,7 +72,7 @@ export class CliSession {
   /**
    * Returns the live system, initializing it on first access.
    */
-  async ensureSystem(): Promise<CodexBetaSystem> {
+  async ensureSystem(): Promise<CodexSynapticSystem> {
     if (this.system) {
       return this.system;
     }
@@ -108,7 +108,7 @@ export class CliSession {
     }
   }
 
-  getSystemUnsafe(): CodexBetaSystem | undefined {
+  getSystemUnsafe(): CodexSynapticSystem | undefined {
     return this.system;
   }
 
@@ -155,7 +155,7 @@ export class CliSession {
     }
 
     try {
-      this.logger.info('cli', 'Shutting down Codex-Beta session', { reason });
+      this.logger.info('cli', 'Shutting down Codex-Synaptic session', { reason });
       await this.system.shutdown();
     } catch (error) {
       this.logger.error('cli', 'Error during session shutdown', { reason }, error as Error);
@@ -184,9 +184,9 @@ export class CliSession {
     }
   }
 
-  private async bootSystem(): Promise<CodexBetaSystem> {
-    const system = new CodexBetaSystem();
-    this.logger.info('cli', 'Initializing Codex-Beta system for CLI session');
+  private async bootSystem(): Promise<CodexSynapticSystem> {
+    const system = new CodexSynapticSystem();
+    this.logger.info('cli', 'Initializing Codex-Synaptic system for CLI session');
     await system.initialize();
     this.system = system;
     this.refreshAgentTelemetry(system.getAgentRegistry());
@@ -195,7 +195,7 @@ export class CliSession {
     return system;
   }
 
-  private attachTelemetry(system: CodexBetaSystem): void {
+  private attachTelemetry(system: CodexSynapticSystem): void {
     const agentRegistered = () => this.refreshAgentTelemetry(system.getAgentRegistry());
     const agentUnregistered = () => this.refreshAgentTelemetry(system.getAgentRegistry());
     const topologyUpdated = (topology: any) => {

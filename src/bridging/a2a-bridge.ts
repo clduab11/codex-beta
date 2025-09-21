@@ -3,9 +3,9 @@
  */
 
 import { EventEmitter } from 'events';
-import { Logger } from '../core/logger';
-import { AgentRegistry } from '../agents/registry';
-import { AgentId } from '../core/types';
+import { Logger } from '../core/logger.js';
+import { AgentRegistry } from '../agents/registry.js';
+import { AgentId } from '../core/types.js';
 
 export class A2ABridge extends EventEmitter {
   private logger = Logger.getInstance();

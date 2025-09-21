@@ -1,33 +1,33 @@
 /**
- * Main Codex-Beta System orchestrator
+ * Main Codex-Synaptic System orchestrator
  */
 
 import { EventEmitter } from 'events';
-import { Logger, LogLevel } from './logger';
-import { HealthMonitor } from './health';
-import { AuthenticationManager, AuthMiddleware } from './auth';
-import { GlobalErrorHandler, CircuitBreaker, SystemError } from './errors';
-import { ResourceManager, AutoScaler, ResourceLimits } from './resources';
-import { StorageManager } from './storage';
-import { GPUManager, GPUStatus } from './gpu';
-import { AgentRegistry } from '../agents/registry';
-import { TaskScheduler } from './scheduler';
-import { NeuralMesh } from '../mesh/neural-mesh';
-import { SwarmCoordinator } from '../swarm/coordinator';
-import { ConsensusManager } from '../consensus/manager';
-import { MCPBridge } from '../bridging/mcp-bridge';
-import { A2ABridge } from '../bridging/a2a-bridge';
-import { ConfigurationManager, SystemConfiguration } from './config';
-import { AgentType, AgentId, AgentStatus, Task, SwarmConfiguration } from './types';
-import { CodeWorker } from '../agents/code_worker';
-import { DataWorker } from '../agents/data_worker';
-import { ValidationWorker } from '../agents/validation_worker';
-import { SwarmCoordinator as SwarmCoordinatorAgent } from '../agents/swarm_coordinator';
-import { TopologyCoordinator } from '../agents/topology_coordinator';
-import { ConsensusCoordinator } from '../agents/consensus_coordinator';
-import { MCPBridgeAgent } from '../agents/mcp_bridge_agent';
-import { A2ABridgeAgent } from '../agents/a2a_bridge_agent';
-import { Agent } from '../agents/agent';
+import { Logger, LogLevel } from './logger.js';
+import { HealthMonitor } from './health.js';
+import { AuthenticationManager, AuthMiddleware } from './auth.js';
+import { GlobalErrorHandler, CircuitBreaker, SystemError } from './errors.js';
+import { ResourceManager, AutoScaler, ResourceLimits } from './resources.js';
+import { StorageManager } from './storage.js';
+import { GPUManager, GPUStatus } from './gpu.js';
+import { AgentRegistry } from '../agents/registry.js';
+import { TaskScheduler } from './scheduler.js';
+import { NeuralMesh } from '../mesh/neural-mesh.js';
+import { SwarmCoordinator } from '../swarm/coordinator.js';
+import { ConsensusManager } from '../consensus/manager.js';
+import { MCPBridge } from '../bridging/mcp-bridge.js';
+import { A2ABridge } from '../bridging/a2a-bridge.js';
+import { ConfigurationManager, SystemConfiguration } from './config.js';
+import { AgentType, AgentId, AgentStatus, Task, SwarmConfiguration } from './types.js';
+import { CodeWorker } from '../agents/code_worker.js';
+import { DataWorker } from '../agents/data_worker.js';
+import { ValidationWorker } from '../agents/validation_worker.js';
+import { SwarmCoordinator as SwarmCoordinatorAgent } from '../agents/swarm_coordinator.js';
+import { TopologyCoordinator } from '../agents/topology_coordinator.js';
+import { ConsensusCoordinator } from '../agents/consensus_coordinator.js';
+import { MCPBridgeAgent } from '../agents/mcp_bridge_agent.js';
+import { A2ABridgeAgent } from '../agents/a2a_bridge_agent.js';
+import { Agent } from '../agents/agent.js';
 
 interface WorkflowStage {
   id: string;
@@ -49,7 +49,7 @@ interface TaskPromiseTracker {
   timeout?: NodeJS.Timeout;
 }
 
-export class CodexBetaSystem extends EventEmitter {
+export class CodexSynapticSystem extends EventEmitter {
   private logger = Logger.getInstance();
   private healthMonitor: HealthMonitor;
   private authManager: AuthenticationManager;
@@ -100,7 +100,7 @@ export class CodexBetaSystem extends EventEmitter {
 
   constructor() {
     super();
-    this.logger.info('system', 'Codex-Beta System created');
+    this.logger.info('system', 'Codex-Synaptic System created');
     
     // Initialize core infrastructure
     this.configManager = new ConfigurationManager();
@@ -141,7 +141,7 @@ export class CodexBetaSystem extends EventEmitter {
       return;
     }
 
-    this.logger.info('system', 'Initializing Codex-Beta System...');
+    this.logger.info('system', 'Initializing Codex-Synaptic System...');
 
     try {
       // Initialize error handling first
@@ -197,7 +197,7 @@ export class CodexBetaSystem extends EventEmitter {
       await this.bootstrapDefaultAgents();
       this.emit('initialized');
       
-      this.logger.info('system', 'Codex-Beta System initialized successfully');
+      this.logger.info('system', 'Codex-Synaptic System initialized successfully');
       
     } catch (error) {
       this.isInitialized = false;
@@ -213,7 +213,7 @@ export class CodexBetaSystem extends EventEmitter {
     }
 
     this.isShuttingDown = true;
-    this.logger.info('system', 'Shutting down Codex-Beta System...');
+    this.logger.info('system', 'Shutting down Codex-Synaptic System...');
 
     this.healthMonitor.stopPeriodicHealthChecks();
 
@@ -233,7 +233,7 @@ export class CodexBetaSystem extends EventEmitter {
       await this.gpuManager.shutdown();
 
       this.emit('shutdown');
-      this.logger.info('system', 'Codex-Beta System shutdown complete');
+      this.logger.info('system', 'Codex-Synaptic System shutdown complete');
       
     } catch (error) {
       this.logger.error('system', 'Error during shutdown', undefined, error as Error);
