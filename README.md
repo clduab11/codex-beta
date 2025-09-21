@@ -408,7 +408,7 @@ npm run test:watch
 
 MIT License - see [LICENSE](LICENSE) for details.
 
-**Created by [Parallax Analytics](mailto:info@parallaxanalytics.io)**
+**Created by [Parallax Analytics](mailto:info@parallax-ai.app)**
 
 Built with ❤️ for the AI agent orchestration community.
 
