@@ -2,12 +2,12 @@
 
 <div align="center">
 
-![Neural Network Architecture](https://github.com/user-attachments/files/18491066/neural-network-visualization.png)
+![Neural Network Architecture](<img width="2560" height="1440" alt="VeniceAI_WHENURo_@2x" src="https://github.com/user-attachments/assets/a960ff4b-78d1-440c-af65-c9b6c2add389")
+
 
 *Unleash the full potential of GPT-5-Codex with distributed neural mesh networking*
 
 [![npm version](https://badge.fury.io/js/codex-synaptic.svg)](https://badge.fury.io/js/codex-synaptic)
-[![CI Status](https://github.com/clduab11/codex-synaptic/workflows/CI/badge.svg)](https://github.com/clduab11/codex-synaptic/actions)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Documentation](https://img.shields.io/badge/docs-latest-brightgreen.svg)](https://github.com/clduab11/codex-synaptic/docs)
 
