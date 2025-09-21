@@ -2,7 +2,7 @@
 
 <div align="center">
 
-![Neural Network Architecture](<img width="2560" height="1440" alt="VeniceAI_WHENURo_@2x" src="https://github.com/user-attachments/assets/a960ff4b-78d1-440c-af65-c9b6c2add389")
+![Neural Network Architecture](https://github.com/user-attachments/assets/a960ff4b-78d1-440c-af65-c9b6c2add389)
 
 
 *Unleash the full potential of GPT-5-Codex with distributed neural mesh networking*
