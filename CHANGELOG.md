@@ -18,6 +18,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Author attribution to Parallax Analytics
 - Updated project description to emphasize distributed AI orchestration
 - Enhanced documentation with neural networking concepts
+- **Documentation consolidation**: Merged GEMINI.md into docs/AGENTS.md for single source of truth
+
+### Removed
+- GEMINI.md file (content merged into docs/AGENTS.md)
 
 ### Technical
 - Maintained all existing distributed AI system functionality
