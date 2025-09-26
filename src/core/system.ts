@@ -6,7 +6,7 @@ import { EventEmitter } from 'events';
 import { Logger, LogLevel } from './logger.js';
 import { HealthMonitor } from './health.js';
 import { AuthenticationManager, AuthMiddleware } from './auth.js';
-import { GlobalErrorHandler, CircuitBreaker, SystemError } from './errors.js';
+import { GlobalErrorHandler, CircuitBreaker, SystemError, CodexSynapticError, ErrorCode } from './errors.js';
 import { ResourceManager, AutoScaler, ResourceLimits } from './resources.js';
 import { StorageManager } from './storage.js';
 import { GPUManager, GPUStatus } from './gpu.js';
@@ -28,6 +28,7 @@ import { ConsensusCoordinator } from '../agents/consensus_coordinator.js';
 import { MCPBridgeAgent } from '../agents/mcp_bridge_agent.js';
 import { A2ABridgeAgent } from '../agents/a2a_bridge_agent.js';
 import { Agent } from '../agents/agent.js';
+import type { CodexContext, CodexPromptEnvelope, FileTreeNode } from '../types/codex-context.js';
 
 interface WorkflowStage {
   id: string;
@@ -36,6 +37,40 @@ interface WorkflowStage {
   requiredCapabilities: string[];
   priority: number;
   payloadBuilder: (context: WorkflowContext) => Record<string, any>;
+}
+
+function cloneCodexContext(context: CodexContext): CodexContext {
+  return {
+    agentDirectives: context.agentDirectives,
+    readmeExcerpts: [...context.readmeExcerpts],
+    directoryInventory: {
+      roots: context.directoryInventory.roots.map(cloneFileTreeNode),
+      totalEntries: context.directoryInventory.totalEntries
+    },
+    databaseMetadata: context.databaseMetadata.map((db) => ({ ...db })),
+    timestamp: new Date(context.timestamp.getTime()),
+    contextHash: context.contextHash,
+    sizeBytes: context.sizeBytes,
+    warnings: [...context.warnings]
+  };
+}
+
+function cloneCodexEnvelope(envelope: CodexPromptEnvelope): CodexPromptEnvelope {
+  return {
+    originalPrompt: envelope.originalPrompt,
+    enrichedPrompt: envelope.enrichedPrompt,
+    contextBlock: envelope.contextBlock
+  };
+}
+
+function cloneFileTreeNode(node: FileTreeNode): FileTreeNode {
+  return {
+    name: node.name,
+    path: node.path,
+    type: node.type,
+    sizeBytes: node.sizeBytes,
+    children: node.children ? node.children.map(cloneFileTreeNode) : undefined
+  };
 }
 
 interface WorkflowContext {
@@ -72,6 +107,11 @@ export class CodexSynapticSystem extends EventEmitter {
   private isInitialized = false;
   private isShuttingDown = false;
   private taskPromises: Map<string, TaskPromiseTracker> = new Map();
+  private codexSession?: {
+    context: CodexContext;
+    envelope: CodexPromptEnvelope;
+    primedAt: Date;
+  };
   private readonly onTaskAssigned = (agentId: AgentId, task: Task): void => {
     this.handleTaskAssignment(agentId, task).catch((error) => {
       this.logger.error('system', 'Agent task execution failed', {
@@ -245,6 +285,39 @@ export class CodexSynapticSystem extends EventEmitter {
       this.clearTaskPromises();
       await this.logger.close();
     }
+  }
+
+  async primeCodexInterface(context: CodexContext, envelope: CodexPromptEnvelope): Promise<void> {
+    const username = process.env.CODEX_CLI_USERNAME ?? 'admin';
+    const password = process.env.CODEX_CLI_PASSWORD ?? 'admin123!';
+
+    try {
+      await this.authManager.authenticate(username, password);
+    } catch (error) {
+      this.logger.warn('system', 'Codex CLI authentication failed', {
+        username,
+        contextHash: context.contextHash
+      }, error as Error);
+      throw new CodexSynapticError(
+        ErrorCode.AGENT_NOT_FOUND,
+        'Codex CLI authentication failed',
+        { username, contextHash: context.contextHash },
+        true
+      );
+    }
+
+    this.codexSession = {
+      context: cloneCodexContext(context),
+      envelope: cloneCodexEnvelope(envelope),
+      primedAt: new Date()
+    };
+
+    this.logger.info('system', 'Codex CLI primed with context', {
+      contextHash: context.contextHash,
+      directivesChars: context.agentDirectives.length,
+      directories: context.directoryInventory.roots.length,
+      databases: context.databaseMetadata.length
+    });
   }
 
   private setupEventHandlers(): void {

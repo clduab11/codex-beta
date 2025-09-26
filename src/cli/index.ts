@@ -15,6 +15,19 @@ import {
   startBackgroundSystem,
   stopBackgroundSystem
 } from './daemon-manager.js';
+import {
+  CodexContextBuilder,
+  composePromptWithContext,
+  renderCodexContextBlock,
+  type CodexContextBuildResult
+} from './codex-context.js';
+import type {
+  CodexContext,
+  CodexContextAggregationMetadata,
+  CodexPromptEnvelope,
+  ContextLogEntry
+} from '../types/codex-context.js';
+import { RetryManager } from '../core/errors.js';
 
 const program = new Command();
 const session = CliSession.getInstance();
@@ -183,6 +196,56 @@ function renderTelemetry(): void {
       console.log(`    • ${task.id} (${task.status}) — ${task.summary}`);
     }
   }
+}
+
+function emitContextLogs(logs: ContextLogEntry[]): void {
+  if (!logs.length) {
+    return;
+  }
+  console.log(chalk.blue('🧾 Codex context aggregation log'));
+  for (const entry of logs) {
+    const detailText = entry.details ? formatDetailEntry(entry.details) : '';
+    const suffix = detailText ? chalk.gray(` (${detailText})`) : '';
+    if (entry.level === 'info') {
+      console.log(chalk.gray(`  • ${entry.message}`) + suffix);
+    } else if (entry.level === 'warn') {
+      console.log(chalk.yellow(`  ⚠️ ${entry.message}`) + suffix);
+    } else {
+      console.log(chalk.red(`  ❗ ${entry.message}`) + suffix);
+    }
+  }
+}
+
+function emitContextSummary(context: CodexContext, metadata: CodexContextAggregationMetadata): void {
+  console.log(chalk.blue('🧠 Codex context summary'));
+  console.log(chalk.gray(`  • Context hash: ${context.contextHash}`));
+  console.log(chalk.gray(`  • Context size: ${context.sizeBytes} bytes`));
+  console.log(chalk.gray(`  • Agent directives: ${metadata.agentGuideCount} file(s)`));
+  console.log(chalk.gray(`  • README excerpts: ${context.readmeExcerpts.length}`));
+  console.log(chalk.gray(`  • .codex directories: ${metadata.codexDirectoryCount}`));
+  console.log(chalk.gray(`  • Database artifacts: ${metadata.databaseCount}`));
+  if (context.warnings.length) {
+    for (const warning of context.warnings) {
+      console.log(chalk.yellow(`  ⚠️ ${warning}`));
+    }
+  }
+}
+
+async function primeCodexWithRetry(
+  system: CodexSynapticSystem,
+  context: CodexContext,
+  envelope: CodexPromptEnvelope
+): Promise<void> {
+  await RetryManager.executeWithRetry(async () => {
+    await system.primeCodexInterface(context, envelope);
+  }, 3, 500, 4000);
+  console.log(chalk.green(`🔐 Codex CLI primed (hash ${context.contextHash.slice(0, 8)}…).`));
+}
+
+function formatDetailEntry(details: Record<string, unknown>): string {
+  return Object.entries(details)
+    .map(([key, value]) => `${key}=${typeof value === 'string' ? value : JSON.stringify(value)}`)
+    .join(', ');
 }
 
 // System commands
@@ -590,6 +653,7 @@ hiveMindCmd
   .command('spawn')
   .description('Spawn a coordinated hive-mind workflow from a prompt')
   .argument('<prompt...>', 'Natural language description of the task/goal')
+  .option('--codex', 'Augment the prompt with Codex context from AGENTS.md, README, and local artifacts')
   .option('--agents <count>', 'Number of agents to target', '5')
   .option('--max-agents <count>', 'Maximum number of agents allowed', '10')
   .option('--max-workers <count>', 'Maximum worker agents', '7')
@@ -603,10 +667,54 @@ hiveMindCmd
   .option('--fault-tolerance', 'Enable fault-tolerant operation')
   .option('--mcp', 'Enable MCP bridge connections')
   .option('--debug', 'Enable debug logging')
+  .option('--dry-run', 'Preview Codex context without executing the hive-mind spawn')
   .action(handleCommand('hive-mind.spawn', async (promptParts: string[], options) => {
-    const prompt = promptParts.join(' ').trim();
+    let prompt = promptParts.join(' ').trim();
     if (!prompt) {
       throw new Error('Prompt cannot be empty');
+    }
+
+    if (options.dryRun && !options.codex) {
+      throw new Error('--dry-run can only be used together with --codex');
+    }
+
+    const originalPrompt = prompt;
+    let codexContext: CodexContext | undefined;
+    let codexMetadata: CodexContextAggregationMetadata | undefined;
+    let codexEnvelope: CodexPromptEnvelope | undefined;
+
+    if (options.codex) {
+      const builder = new CodexContextBuilder(process.cwd());
+      await builder.withAgentDirectives();
+      await builder.withReadmeExcerpts();
+      await builder.withDirectoryInventory();
+      await builder.withDatabaseMetadata();
+      const buildResult: CodexContextBuildResult = await builder.build();
+
+      codexContext = buildResult.context;
+      codexMetadata = buildResult.metadata;
+
+      emitContextLogs(buildResult.logs);
+      emitContextSummary(buildResult.context, buildResult.metadata);
+
+      const contextBlock = renderCodexContextBlock(buildResult.context);
+      const enrichedPrompt = composePromptWithContext(originalPrompt, buildResult.context);
+
+      codexEnvelope = {
+        originalPrompt,
+        enrichedPrompt,
+        contextBlock
+      };
+
+      if (options.dryRun) {
+        console.log(chalk.yellow('⚙️  Dry-run: Codex context ready. Skipping hive-mind orchestration.'));
+        console.log('');
+        console.log(chalk.gray(contextBlock));
+        return;
+      }
+
+      prompt = enrichedPrompt;
+      console.log(chalk.cyan('📚 Codex context attached to hive-mind prompt.'));
     }
 
     const config = {
@@ -622,12 +730,26 @@ hiveMindCmd
       queenCoordinator: !!options.queenCoordinator,
       faultTolerance: !!options.faultTolerance,
       mcp: !!options.mcp,
-      debug: !!options.debug
+      debug: !!options.debug,
+      codex: codexContext
+        ? {
+            enabled: true,
+            contextHash: codexContext.contextHash,
+            sizeBytes: codexContext.sizeBytes,
+            agentGuides: codexMetadata?.agentGuideCount ?? 0,
+            directories: codexMetadata?.codexDirectoryCount ?? 0,
+            databases: codexMetadata?.databaseCount ?? 0
+          }
+        : { enabled: false }
     };
 
     await useSystem('hive-mind spawn', async (system) => {
       console.log(chalk.blue('🧠 Initializing hive-mind orchestration...'));
       console.log(chalk.gray(`Configuration: ${JSON.stringify(config, null, 2)}`));
+
+      if (codexContext && codexEnvelope) {
+        await primeCodexWithRetry(system, codexContext, codexEnvelope);
+      }
 
       // Phase 1: Infrastructure Setup
       console.log(chalk.cyan('📡 Phase 1: Infrastructure Setup'));
