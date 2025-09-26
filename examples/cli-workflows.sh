@@ -82,7 +82,7 @@ echo "✨ Workflow examples complete!"
 echo ""
 echo "📚 For more examples, see:"
 echo "  - examples/README.md"
-echo "  - docs/AGENTS.md"
+echo "  - AGENTS.md"
 echo "  - codex-synaptic --help"
 
 # Cleanup
