@@ -296,6 +296,24 @@ codex-synaptic swarm status           # Active swarm metrics
 codex-synaptic swarm stop             # End swarm session
 ```
 
+### Codex-Aware Hive-Mind Spawn
+```bash
+codex-synaptic hive-mind spawn "Build analytics dashboard" --codex
+# Automatically attaches AGENTS.md directives, README excerpts, .codex* inventories, and database metadata
+
+codex-synaptic hive-mind spawn "Build analytics dashboard" --codex --dry-run
+# Preview the aggregated context without launching the swarm orchestration
+```
+
+When `--codex` is supplied, the CLI:
+
+- Scans every scoped `AGENTS.md` and trims content to remain within safe token limits.
+- Extracts key README sections and inventories `.codex*` directories plus SQLite databases.
+- Produces a deterministic context hash, size report, and warning list for auditability.
+- Primes the Codex interface with exponential backoff so authentication hiccups retry gracefully.
+
+`--dry-run` prints the exact context block that will be attached along with a detailed aggregation log so you can verify scope and size before engaging the hive-mind.
+
 ### Consensus Management
 ```bash
 codex-synaptic consensus list         # Active proposals
