@@ -12,16 +12,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Comprehensive README with neural mesh philosophy
 - MIT license under Parallax Analytics
 - Star history chart integration
+- **Unified agent documentation**: Consolidated GEMINI.md and docs/AGENTS.md into a single comprehensive AGENTS.md file in the root directory, creating a unified source of truth for agent documentation
 
 ### Changed
 - Project name from "codex-synaptic" to "codex-synaptic"
 - Author attribution to Parallax Analytics
 - Updated project description to emphasize distributed AI orchestration
 - Enhanced documentation with neural networking concepts
-- **Documentation consolidation**: Merged GEMINI.md into docs/AGENTS.md for single source of truth
-
-### Removed
-- GEMINI.md file (content merged into docs/AGENTS.md)
 
 ### Technical
 - Maintained all existing distributed AI system functionality
