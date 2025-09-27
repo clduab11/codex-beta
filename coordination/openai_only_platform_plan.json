@@ -1,0 +1,314 @@
+{
+  "metadata": {
+    "role": "Codex-Synaptic Architecture Lead",
+    "task": "Author OpenAI-native implementation roadmap",
+    "context": "Codex-Synaptic distributed agent platform (OpenAI endpoints only)",
+    "desired_output_format": "JSON for automated ingestion",
+    "constraints": [
+      "Respect AGENTS.md neural mesh, swarm, consensus guidance",
+      "Honor Codex CLI ergonomics per Codex Cloud Docs §2.1-2.4",
+      "Apply Google Prompt Engineering Whitepaper (Oct 2024) §§3.3, 4.1, 5.2, 6.1"
+    ],
+    "references": {
+      "agents_playbook": "AGENTS.md",
+      "codex_cloud_docs": "https://developers.openai.com/codex/cloud",
+      "google_prompt_whitepaper_oct_2024": "Google Prompt Engineering Whitepaper (Oct 2024)"
+    }
+  },
+  "triage": {
+    "capability_clusters": [
+      {
+        "name": "Instruction & Routing Core",
+        "capabilities": ["Native AGENT.md file processing", "Advanced prompt routing for specialized agents"],
+        "rationale": "Shared dependency on instruction graph ingestion and routing heuristics"
+      },
+      {
+        "name": "Adaptive Cognition",
+        "capabilities": ["Dynamic tool call optimization", "Enhanced autonomous reasoning workflows"],
+        "rationale": "Requires telemetry-driven feedback loops and reasoning checkpoint orchestration"
+      },
+      {
+        "name": "Enterprise Foundations",
+        "capabilities": ["Multi-tenancy support", "Advanced security & compliance", "Horizontal auto-scaling"],
+        "rationale": "Tenant isolation, compliance, and scaling controls must co-evolve"
+      },
+      {
+        "name": "Intelligence & Analytics Frontier",
+        "capabilities": ["Enterprise dashboard & analytics", "Quantum-ready agent protocols", "Self-modifying agent architectures", "Advanced neural architecture search"],
+        "rationale": "Shared need for high-assurance experimentation, analytics, and advanced computation"
+      }
+    ],
+    "integration_dependencies": {
+      "shared_libraries": ["src/agents/registry.ts", "src/core/system.ts", "src/core/scheduler.ts", "src/memory/memory-system.ts", "src/core/resources.ts"],
+      "new_modules": [
+        "src/instructions", "src/router", "src/tools/optimizer", "src/reasoning", "src/tenancy", "src/security", "src/scaling", "src/analytics", "src/quantum", "src/self_modifying", "src/nas"
+      ],
+      "config_artifacts": [
+        "config/instructions/*.json", "config/routing/*.json", "config/tools/*.yaml", "config/reasoning/*.json", "config/tenants/*.yaml", "config/security/*.yaml", "config/scaling/*.json", "config/dashboard/*.json", "config/quantum/*.json", "config/self_modifying/*.json", "config/nas/*.yaml"
+      ]
+    }
+  },
+  "sprints": [
+    {
+      "name": "Sprint 1 – Instruction Graphs & Routing",
+      "capabilities": ["Native AGENT.md file processing", "Advanced prompt routing for specialized agents"],
+      "objectives": [
+        "Implement recursive AGENT.md discovery, scope precedence, and caching (Codex Cloud Docs §2.3)",
+        "Stream instruction context via `codex-synaptic run --codex` and `codex-synaptic instructions sync`",
+        "Extend routing policy engine leveraging metadata embeddings and Whitepaper §4.1 persona alignment"
+      ],
+      "deliverables": [
+        "Instruction parser service (`src/instructions/parser.ts`) with SQLite-backed cache",
+        "CLI integration updates in `src/cli/index.ts` and help text in `docs/cli/instructions.md`",
+        "Routing policy API (`POST /v1/router/evaluate`, `POST /v1/router/rules`) and config schema"
+      ],
+      "agent_assignments": {
+        "lead": ["CodeWorker"],
+        "support": ["ValidationWorker", "SwarmCoordinator"],
+        "neural_mesh_topology": "tree",
+        "consensus_mechanism": {"type": "RAFT", "scope": "Instruction propagation", "reason": "Strong consistency for policy sync"}
+      },
+      "testing": {
+        "unit": ["tests/instructions/parser.spec.ts", "tests/router/rules.spec.ts"],
+        "integration": ["tests/cli/instructions.e2e.ts"],
+        "tooling": ["codex-synaptic router simulate"]
+      }
+    },
+    {
+      "name": "Sprint 2 – Adaptive Tooling & Reasoning",
+      "capabilities": ["Dynamic tool call optimization", "Enhanced autonomous reasoning workflows"],
+      "objectives": [
+        "Collect tool telemetry and apply PSO-based selection (AGENTS.md Swarm Algorithms, Codex Cloud Docs §3.2)",
+        "Persist reasoning checkpoints and enable resume/rollback per Whitepaper §5.2",
+        "Gate reasoning plan execution behind ValidationWorker consensus"
+      ],
+      "deliverables": [
+        "Tool scoring service (`src/tools/optimizer/index.ts`) with `POST /v1/tools/score`",
+        "Reasoning workflow manager (`src/reasoning/planner.ts`) exposing `POST /v1/reasoning/plans` and checkpoint endpoints",
+        "Telemetry schema updates (`memory/telemetry/tool_usage.parquet` layout)"
+      ],
+      "agent_assignments": {
+        "lead": ["SwarmCoordinator"],
+        "support": ["DataWorker", "ConsensusCoordinator"],
+        "neural_mesh_topology": "mesh",
+        "consensus_mechanism": {"type": "PBFT", "scope": "Tool policy updates", "reason": "Resilience to noisy telemetry"}
+      },
+      "testing": {
+        "unit": ["tests/tools/optimizer.spec.ts", "tests/reasoning/planner.spec.ts"],
+        "integration": ["tests/reasoning/tool-feedback.e2e.ts"],
+        "load": ["scripts/load/tool_telemetry_benchmark.ts"]
+      }
+    },
+    {
+      "name": "Sprint 3 – Enterprise Resilience",
+      "capabilities": ["Multi-tenancy support", "Advanced security & compliance", "Horizontal auto-scaling"],
+      "objectives": [
+        "Partition scheduler, memory, and telemetry per tenant using envelope encryption (Codex Cloud Docs §4.1)",
+        "Embed policy enforcement via OPA-compatible engine and immutable audit log",
+        "Implement predictive + reactive scaling policies with cooldown and fairness guards"
+      ],
+      "deliverables": [
+        "Tenant manager (`src/tenancy/manager.ts`) and CLI (`codex-synaptic tenant create|quota|audit`)",
+        "Security policy service (`src/security/policy-engine.ts`) with `POST /v1/security/policies` and Merkle ledger",
+        "Autoscaler controller (`src/scaling/autoscaler.ts`) integrated with Kubernetes adapters"
+      ],
+      "agent_assignments": {
+        "lead": ["TopologyCoordinator"],
+        "support": ["ConsensusCoordinator", "ValidationWorker"],
+        "neural_mesh_topology": "ring",
+        "consensus_mechanism": {"type": "Hierarchical quorum", "scope": "Tenant onboarding & scaling decisions", "reason": "Tenant-aligned governance"}
+      },
+      "testing": {
+        "unit": ["tests/tenancy/manager.spec.ts", "tests/security/policy-engine.spec.ts", "tests/scaling/autoscaler.spec.ts"],
+        "integration": ["tests/scaling/k8s-adapter.e2e.ts"],
+        "compliance": ["tests/security/audit-ledger.snapshot.ts"]
+      }
+    },
+    {
+      "name": "Sprint 4 – Analytics, Quantum, and Self-Evolution",
+      "capabilities": ["Enterprise dashboard & analytics", "Quantum-ready agent protocols", "Self-modifying agent architectures", "Advanced neural architecture search"],
+      "objectives": [
+        "Deliver tenant-aware analytics API and WebSocket streams with role-based access (Codex Cloud Docs §5.3)",
+        "Implement quantum-safe channel negotiation (CRYSTALS-Kyber) with deterministic classical fallback",
+        "Enable sandboxed self-modification proposals gated by Tiered PBFT (Whitepaper §6.1)",
+        "Launch NAS orchestration leveraging DataWorker/CodeWorker co-processing"
+      ],
+      "deliverables": [
+        "Analytics service (`src/analytics/service.ts`) + dashboard backend (`examples/dashboard/api`)",
+        "Quantum bridge (`src/quantum/channel-manager.ts`) with simulation harness and PQC test fixtures",
+        "Self-modification controller (`src/self_modifying/controller.ts`) storing proposals in `memory/self_modifying.db`",
+        "NAS coordinator (`src/nas/orchestrator.ts`) with `POST /v1/nas/jobs` and job queue integration"
+      ],
+      "agent_assignments": {
+        "lead": ["CodeWorker", "DataWorker"],
+        "support": ["ConsensusCoordinator", "MCPBridge"],
+        "neural_mesh_topology": "hybrid",
+        "consensus_mechanism": {"type": "Tiered PBFT + Stake-weighted voting", "scope": "Self-modification & NAS promotion", "reason": "High assurance with expert overrides"}
+      },
+      "testing": {
+        "unit": ["tests/analytics/service.spec.ts", "tests/quantum/channel-manager.spec.ts", "tests/self_modifying/controller.spec.ts", "tests/nas/orchestrator.spec.ts"],
+        "integration": ["tests/dashboard/streaming.e2e.ts", "tests/quantum/pqc-harness.e2e.ts", "tests/nas/pipeline.e2e.ts"],
+        "security": ["tests/self_modifying/sandbox.snapshot.ts"]
+      }
+    }
+  ],
+  "capability_blueprints": {
+    "native_agent_md_processing": {
+      "apis": ["POST /v1/agents/context/ingest", "GET /v1/agents/context/{agentId}"],
+      "cli": ["codex-synaptic instructions sync", "codex-synaptic run --codex"],
+      "memory": "~/.codex-synaptic/instructions.db (per-tenant namespace, RAFT replicated)",
+      "configuration": "config/instructions/scopes.json with precedence and cache TTL",
+      "challenges": ["Deep nesting precedence", "Distributed cache invalidation"],
+      "solutions": ["Deterministic path hashing", "RAFT log replay with ValidationWorker audits"]
+    },
+    "prompt_routing": {
+      "apis": ["POST /v1/router/evaluate", "POST /v1/router/rules"],
+      "cli": ["codex-synaptic router simulate", "codex-synaptic router update"],
+      "memory": "Routing decisions stored in `memory/routing/history.parquet` for A/B testing",
+      "configuration": "config/routing/policies.json with persona weights",
+      "challenges": ["Avoid oscillation", "Custom agent taxonomy"],
+      "solutions": ["Swarm smoothing window per Whitepaper §3.3", "Extend agent registry schema"]
+    },
+    "dynamic_tool_call_optimization": {
+      "apis": ["POST /v1/tools/score", "POST /v1/tools/recommendations"],
+      "cli": ["codex-synaptic tools optimize", "codex-synaptic tools report"],
+      "memory": "Tool metrics stored in `memory/telemetry/tools.db` with time-decay weights",
+      "configuration": "config/tools/strategies.yaml",
+      "challenges": ["Cold start", "Overfitting to spikes"],
+      "solutions": ["Heuristic bootstrap", "Diversity penalty & decay"]
+    },
+    "autonomous_reasoning": {
+      "apis": ["POST /v1/reasoning/plans", "POST /v1/reasoning/checkpoints", "GET /v1/reasoning/history/{taskId}"],
+      "cli": ["codex-synaptic reasoning plan", "codex-synaptic reasoning resume"],
+      "memory": "Reasoning graphs stored in vector DB `memory/reasoning/index.faiss` with metadata snapshots",
+      "configuration": "config/reasoning/templates.json aligned with Whitepaper §5.2",
+      "challenges": ["Context drift", "Ownership transitions"],
+      "solutions": ["Checkpoint compression", "ConsensusCoordinator mediated ownership"]
+    },
+    "multi_tenancy": {
+      "apis": ["POST /v1/tenants", "POST /v1/tenants/{tenantId}/policies", "GET /v1/tenants/{tenantId}/quotas"],
+      "cli": ["codex-synaptic tenant create", "codex-synaptic tenant quota", "codex-synaptic tenant audit"],
+      "memory": "Isolated SQLite schemas with envelope encryption per tenant",
+      "configuration": "config/tenants/manifests.yaml",
+      "challenges": ["Tenant bleed-over", "Burst handling"],
+      "solutions": ["Namespace-scoped resource tags", "Autoscaler fairness guardrails"]
+    },
+    "security_compliance": {
+      "apis": ["POST /v1/security/policies", "GET /v1/security/audit-log"],
+      "cli": ["codex-synaptic security policy", "codex-synaptic security audit"],
+      "memory": "Immutable Merkle ledger `memory/security/audit.log`",
+      "configuration": "config/security/policies.yaml",
+      "challenges": ["Balancing enforcement vs autonomy", "Audit performance"],
+      "solutions": ["Policy caching with differential evaluation", "Streaming audits to analytics"]
+    },
+    "horizontal_auto_scaling": {
+      "apis": ["POST /v1/scale/plans", "GET /v1/scale/status"],
+      "cli": ["codex-synaptic scale apply", "codex-synaptic scale status"],
+      "memory": "Scaling events persisted in `memory/scaling/events.parquet`",
+      "configuration": "config/scaling/policies.json",
+      "challenges": ["Thrashing", "Tenant fairness"],
+      "solutions": ["Cooldown windows", "Consensus-weighted thresholds"]
+    },
+    "enterprise_dashboard_analytics": {
+      "apis": ["GET /v1/analytics/overview", "GET /v1/analytics/tenant/{tenantId}", "WS /v1/analytics/stream"],
+      "cli": ["codex-synaptic analytics export", "codex-synaptic analytics watch"],
+      "memory": "DuckDB-backed warehouse `memory/analytics/warehouse.duckdb` with tiered storage",
+      "configuration": "config/dashboard/widgets.json",
+      "challenges": ["Historical scale", "Low-latency streaming"],
+      "solutions": ["Hot/cold storage tiers", "WebSocket delta compression"]
+    },
+    "quantum_ready_protocols": {
+      "apis": ["POST /v1/quantum/channels", "POST /v1/quantum/simulations"],
+      "cli": ["codex-synaptic quantum simulate", "codex-synaptic quantum channel"],
+      "memory": "Quantum metadata stored in `memory/quantum/channels.db` with PQC keys",
+      "configuration": "config/quantum/profiles.json",
+      "challenges": ["PQC integration", "Deterministic fallback"],
+      "solutions": ["WebAssembly Kyber implementation", "Classical simulation fallback harness"]
+    },
+    "self_modifying_agents": {
+      "apis": ["POST /v1/agents/self-modify", "POST /v1/agents/self-modify/proposals", "GET /v1/agents/self-modify/history"],
+      "cli": ["codex-synaptic agents mutate", "codex-synaptic agents review"],
+      "memory": "Version-controlled proposals in `memory/self_modifying/history.parquet`",
+      "configuration": "config/self_modifying/policies.json",
+      "challenges": ["Runaway mutations", "Auditability"],
+      "solutions": ["Tiered PBFT approvals", "Immutable audit chain"]
+    },
+    "advanced_neural_architecture_search": {
+      "apis": ["POST /v1/nas/jobs", "GET /v1/nas/jobs/{jobId}", "POST /v1/nas/results"],
+      "cli": ["codex-synaptic nas submit", "codex-synaptic nas monitor"],
+      "memory": "NAS artifacts stored in `memory/nas/results.db` with experiment seeds",
+      "configuration": "config/nas/strategies.yaml",
+      "challenges": ["GPU scheduling", "Result reproducibility"],
+      "solutions": ["Resource-aware scheduler hooks in `src/core/resources.ts`", "Persist seeds/config for deterministic reruns"]
+    }
+  },
+  "execution_plan": {
+    "module_setup_sequence": [
+      "Scaffold instruction parser and routing modules (Sprint 1)",
+      "Layer telemetry-driven tooling and reasoning workflows (Sprint 2)",
+      "Integrate tenancy, security, scaling controllers with CLI (Sprint 3)",
+      "Deliver analytics, quantum, self-modification, and NAS services with staged feature flags (Sprint 4)"
+    ],
+    "release_gates": [
+      "Alpha CLI release post Sprint 1 with instruction/routing feature flag",
+      "Beta adaptive tooling release post Sprint 2 with validation reports",
+      "Staging deployment for enterprise controls post Sprint 3",
+      "Limited access beta for frontier capabilities post Sprint 4"
+    ],
+    "persistent_memory_strategy": {
+      "storage_layout": {
+        "sqlite": ["instructions.db", "tools.db", "tenants"],
+        "parquet": ["routing/history.parquet", "scaling/events.parquet", "analytics/metrics.parquet"],
+        "vector": ["reasoning/index.faiss"],
+        "duckdb": ["analytics/warehouse.duckdb"],
+        "pqc_keystore": ["quantum/kyber_keys.bin"]
+      },
+      "backup_policy": "Nightly snapshots with tenant-level encryption and RAFT log sync"
+    },
+    "testing_strategy": {
+      "unit": "Vitest suites colocated under tests/*",
+      "integration": "CLI and API smoke tests via `pnpm test:e2e` profile",
+      "load": "K6/Grafana profiles targeting scaling and routing endpoints",
+      "security": "OPA policy regression harness and Merkle ledger verification",
+      "quantum": "Deterministic PQC handshake simulation harness"
+    }
+  },
+  "risk_register": {
+    "global_risks": [
+      {
+        "risk": "Instruction scope drift across distributed workers",
+        "impact": "Inconsistent agent behavior and policy violations",
+        "mitigation": "RAFT-backed sync, ValidationWorker regression contracts"
+      },
+      {
+        "risk": "Telemetry-driven optimization biases",
+        "impact": "Degraded long-horizon reasoning",
+        "mitigation": "Diversity penalties, human-in-loop review windows"
+      },
+      {
+        "risk": "Tenant isolation breach",
+        "impact": "Compliance failure and data leakage",
+        "mitigation": "Per-tenant encryption, automated policy audits"
+      },
+      {
+        "risk": "Self-modification runaway",
+        "impact": "Platform instability",
+        "mitigation": "Tiered PBFT gating, sandboxed dry runs"
+      }
+    ],
+    "sprint_specific": {
+      "Sprint 1": [
+        {"risk": "AGENT.md precedence errors", "mitigation": "Contract tests for repo/root/local overrides"}
+      ],
+      "Sprint 2": [
+        {"risk": "Tool feedback oscillation", "mitigation": "Telemetry smoothing + PBFT quorum"}
+      ],
+      "Sprint 3": [
+        {"risk": "Autoscaler resource exhaustion", "mitigation": "Predictive guardrails & cooldowns"}
+      ],
+      "Sprint 4": [
+        {"risk": "Quantum harness nondeterminism", "mitigation": "Deterministic seed injection & classical fallback"}
+      ]
+    }
+  }
+}
