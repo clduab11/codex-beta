@@ -11,7 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Initial Codex-Synaptic branding and identity
 - Comprehensive README with neural mesh philosophy
 - MIT license under Parallax Analytics
-- Star history chart integration
+- **Dynamic star history chart integration** - Replaced ASCII chart with live GitHub star history
+- **Mini-changelog section in README** - Added recent changes summary for better project transparency
 - **Unified agent documentation**: Consolidated GEMINI.md and docs/AGENTS.md into a single comprehensive AGENTS.md file in the root directory, creating a unified source of truth for agent documentation
 
 ### Changed
