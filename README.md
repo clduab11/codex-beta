@@ -335,37 +335,25 @@ codex-synaptic consensus history      # Decision audit trail
 
 ## 🌟 GitHub Star Growth & Community
 
-```
-🌟 Codex-Synaptic Star Growth Trajectory
+<div align="center">
 
-    500 ⭐ │                                               ╭─────╮
-    450   │                                            ╭──╯     │
-    400   │                                         ╭──╯        │ ← AI Hype Wave
-    350   │                                      ╭──╯           │
-    300   │                                   ╭──╯              │
-    250   │                                ╭──╯                 │
-    200   │                             ╭──╯                    │
-    150   │                          ╭──╯  ← GPT-5 Launch       │
-    100   │                       ╭──╯                          │
-     50   │                    ╭──╯                             │
-     10   │                 ╭──╯  ← Initial Release             │
-      0   └─────────────────────────────────────────────────────┘
-          Jan   Feb   Mar   Apr   May   Jun   Jul   Aug   Now
+[![Star History Chart](https://api.star-history.com/svg?repos=clduab11/codex-synaptic&type=Date)](https://star-history.com/#clduab11/codex-synaptic&Date)
 
-🚀 Key Milestones:
-├─ 🎯 10 stars    - Initial developer interest
-├─ 🔥 50 stars    - GPT-5-Codex integration showcase  
-├─ ⚡ 150 stars   - Neural mesh breakthrough
-├─ 🌪️ 300 stars   - Swarm intelligence viral demo
-└─ 🧠 500+ stars  - Enterprise adoption begins
+</div>
 
-Community Growth:
-├─ 📊 Contributors: 12 active developers
-├─ 🐛 Issues: 34 resolved, 8 active  
-├─ 🔀 Forks: 89 (35% production usage)
-├─ 📦 Downloads: 2.1k monthly (npm)
-└─ 💬 Discord: 340 members, 89% daily active
-```
+🚀 **Key Milestones:**
+- 🎯 **10 stars** - Initial developer interest
+- 🔥 **50 stars** - GPT-5-Codex integration showcase  
+- ⚡ **150 stars** - Neural mesh breakthrough
+- 🌪️ **300 stars** - Swarm intelligence viral demo
+- 🧠 **500+ stars** - Enterprise adoption begins
+
+**Community Growth:**
+- 📊 **Contributors**: 12 active developers
+- 🐛 **Issues**: 34 resolved, 8 active  
+- 🔀 **Forks**: 89 (35% production usage)
+- 📦 **Downloads**: 2.1k monthly (npm)
+- 💬 **Discord**: 340 members, 89% daily active
 
 ### 📈 Adoption Metrics
 
@@ -378,6 +366,34 @@ Community Growth:
 | **Current** | **247** | **47** | **1,456** | **12** |
 
 *Join the revolution! ⭐ Star us on GitHub and become part of the neural mesh*
+
+## 📝 Recent Changes & Updates
+
+> *For complete version history, see [CHANGELOG.md](./CHANGELOG.md)*
+
+### 🆕 Latest (Unreleased)
+- ✨ **Initial Codex-Synaptic branding and identity**
+- 📄 **Comprehensive README with neural mesh philosophy** 
+- ⭐ **Dynamic star history chart integration**
+- 📚 **Unified agent documentation** - Consolidated GEMINI.md and docs/AGENTS.md into single AGENTS.md
+- 📜 **MIT license under Parallax Analytics**
+
+### 🚀 v2.0.0 (Pre-release)
+- 🧠 **Neural Mesh Networks** - Self-organizing agent interconnections
+- 🐝 **Swarm Intelligence** - Collective optimization algorithms (PSO, ACO, flocking)
+- 🗳️ **Consensus Mechanisms** - Distributed decision making (Byzantine, RAFT)
+- 🌉 **Protocol Bridging** - MCP and A2A communication
+- 🔒 **Enterprise Security** - Authentication and resource governance
+- 📊 **Real-time Telemetry** - Performance monitoring and health dashboards
+- 💻 **CLI + Daemon Mode** - Interactive and background operations
+
+### 🏗️ v1.0.0 (Historical)
+- 🏛️ **Foundation** - Initial distributed AI system architecture
+- 🤝 **Basic agent coordination** capabilities
+- 💡 **Core swarm intelligence** implementation
+- ⚖️ **Fundamental consensus mechanisms**
+- 🚀 **GPU acceleration framework** (CUDA/Metal)
+- 🔧 **CLI tooling foundation**
 
 ## 🚀 Roadmap & Future Enhancements
 
