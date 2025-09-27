@@ -26,3 +26,13 @@ python/*.pyc
 python/.pytest_cache/
 codex_db/
 python/.env
+
+# Python bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+
+# ChromaDB databases
+*_db/
+test*/
+demo_db/
