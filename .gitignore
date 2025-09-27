@@ -19,3 +19,21 @@ yarn-error.log*
 *~
 .tmp/
 temp/
+
+# Build artifacts
+*.tsbuildinfo
+.cache/
+
+# Test artifacts
+test-results/
+vitest-junit.xml
+
+# Database files (keep structure, ignore data)
+*.db-journal
+*.db-wal
+.codex-synaptic/memory.db
+.codex-synaptic/instructions.db
+
+# Temporary improvement artifacts (keep structure)
+.codex-improvement/temp/
+.codex-context/temp/
