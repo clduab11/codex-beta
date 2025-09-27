@@ -36,3 +36,6 @@ __pycache__/
 *_db/
 test*/
 demo_db/
+
+# Runtime generated data
+memory/routing/
