@@ -1,1 +1,3 @@
 # This directory contains runtime-generated routing data that should not be committed
+# All JSON files in this directory are automatically ignored by .gitignore
+# This file ensures the directory structure is preserved for the routing system

@@ -15,7 +15,7 @@ yarn-error.log*
 .vscode/
 .idea/
 *.swp
-*.swo
+.swo
 *~
 .tmp/
 temp/
@@ -37,5 +37,7 @@ __pycache__/
 test*/
 demo_db/
 
-# Runtime generated data
+# Runtime generated data - comprehensive coverage
 memory/routing/*.json
+memory/routing/*-*.json
+memory/routing/20*.json
