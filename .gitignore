@@ -38,4 +38,4 @@ test*/
 demo_db/
 
 # Runtime generated data
-memory/routing/
+memory/routing/*.json
