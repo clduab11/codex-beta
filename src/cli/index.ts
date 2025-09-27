@@ -29,6 +29,7 @@ import type {
 } from '../types/codex-context.js';
 import { RetryManager } from '../core/errors.js';
 import { InstructionParser } from '../instructions/index.js';
+import { RoutingPolicyService } from '../router/index.js';
 
 const program = new Command();
 const session = CliSession.getInstance();
@@ -490,6 +491,171 @@ instructionsCmd
       process.exitCode = 1;
     } finally {
       await parser.close();
+    }
+  }));
+
+// Router commands
+const routerCmd = program.command('router').description('Routing policy management and evaluation');
+
+routerCmd
+  .command('evaluate')
+  .argument('<prompt>', 'Prompt to evaluate for routing')
+  .description('Evaluate routing for a given prompt')
+  .option('-c, --context <file>', 'Context file to include')
+  .option('-e, --exclude <agents>', 'Comma-separated list of agents to exclude')
+  .option('-p, --prefer <agents>', 'Comma-separated list of preferred agents')
+  .option('-v, --verbose', 'Show detailed evaluation information')
+  .action(handleCommand('router.evaluate', async (prompt, options) => {
+    const router = new RoutingPolicyService();
+    try {
+      console.log(chalk.cyan('🔄 Evaluating routing for prompt...'));
+      
+      const request = {
+        prompt,
+        context: options.context ? {
+          fileContext: require('fs').readFileSync(options.context, 'utf8')
+        } : undefined,
+        constraints: {
+          excludeAgents: options.exclude ? options.exclude.split(',').map((s: string) => s.trim()) : undefined,
+          preferredAgents: options.prefer ? options.prefer.split(',').map((s: string) => s.trim()) : undefined
+        }
+      };
+      
+      const evaluation = await router.evaluateRouting(request);
+      
+      console.log(chalk.green(`✅ Routing evaluation completed`));
+      console.log(`🎯 Recommended agent: ${chalk.bold(evaluation.agentType)}`);
+      console.log(`📊 Confidence: ${(evaluation.confidence * 100).toFixed(1)}%`);
+      console.log(`💭 Reasoning: ${evaluation.reasoning}`);
+      
+      if (options.verbose) {
+        console.log(`\n📋 Evaluation Details:`);
+        console.log(`  • Evaluation ID: ${evaluation.metadata.evaluationId.slice(0, 12)}...`);
+        console.log(`  • Processing time: ${evaluation.metadata.processingTimeMs}ms`);
+        console.log(`  • Rules applied: ${evaluation.metadata.rulesApplied.length}`);
+        
+        if (evaluation.alternatives.length > 0) {
+          console.log(`\n🔄 Alternatives:`);
+          evaluation.alternatives.forEach((alt, i) => {
+            console.log(`  ${i + 1}. ${alt.agentType} (${(alt.confidence * 100).toFixed(1)}%) - ${alt.reasoning}`);
+          });
+        }
+      }
+      
+    } catch (error) {
+      console.error(chalk.red(`❌ Routing evaluation failed: ${error}`));
+      process.exitCode = 1;
+    }
+  }));
+
+routerCmd
+  .command('rules')
+  .description('Manage routing rules')
+  .option('-l, --list', 'List all routing rules')
+  .option('-a, --add <file>', 'Add rule from JSON file')
+  .option('-d, --delete <id>', 'Delete rule by ID')
+  .option('-e, --enable <id>', 'Enable rule by ID')
+  .option('-x, --disable <id>', 'Disable rule by ID')
+  .option('-v, --verbose', 'Show detailed rule information')
+  .action(handleCommand('router.rules', async (options) => {
+    const router = new RoutingPolicyService();
+    try {
+      if (options.list) {
+        const rules = router.getAllRules();
+        console.log(chalk.cyan(`📋 Routing Rules (${rules.length} total):`));
+        
+        if (rules.length === 0) {
+          console.log(chalk.gray('  No rules configured'));
+          return;
+        }
+        
+        rules.forEach(rule => {
+          const status = rule.metadata.enabled ? chalk.green('✓') : chalk.red('✗');
+          console.log(`  ${status} ${chalk.bold(rule.name)} (${rule.id})`);
+          console.log(`    Precedence: ${rule.precedence}, Confidence: ${(rule.confidence * 100).toFixed(1)}%`);
+          console.log(`    Target: ${rule.target}, Description: ${rule.description}`);
+          
+          if (options.verbose) {
+            console.log(`    Keywords: ${rule.conditions.keywords?.join(', ') || 'none'}`);
+            console.log(`    Patterns: ${rule.conditions.patterns?.join(', ') || 'none'}`);
+            console.log(`    Created: ${rule.metadata.created.toISOString()}`);
+          }
+          console.log('');
+        });
+      } else if (options.add) {
+        const ruleData = JSON.parse(require('fs').readFileSync(options.add, 'utf8'));
+        const rule = await router.addRule(ruleData);
+        console.log(chalk.green(`✅ Rule added: ${rule.name} (${rule.id})`));
+      } else if (options.delete) {
+        const deleted = await router.deleteRule(options.delete);
+        if (deleted) {
+          console.log(chalk.green(`✅ Rule deleted: ${options.delete}`));
+        } else {
+          console.log(chalk.yellow(`⚠️  Rule not found: ${options.delete}`));
+        }
+      } else if (options.enable) {
+        const rule = await router.updateRule(options.enable, { 
+          metadata: { enabled: true } as any 
+        });
+        if (rule) {
+          console.log(chalk.green(`✅ Rule enabled: ${rule.name}`));
+        } else {
+          console.log(chalk.yellow(`⚠️  Rule not found: ${options.enable}`));
+        }
+      } else if (options.disable) {
+        const rule = await router.updateRule(options.disable, { 
+          metadata: { enabled: false } as any 
+        });
+        if (rule) {
+          console.log(chalk.yellow(`⚠️  Rule disabled: ${rule.name}`));
+        } else {
+          console.log(chalk.yellow(`⚠️  Rule not found: ${options.disable}`));
+        }
+      } else {
+        console.log(chalk.yellow('⚠️  Please specify an action: --list, --add, --delete, --enable, or --disable'));
+      }
+    } catch (error) {
+      console.error(chalk.red(`❌ Router operation failed: ${error}`));
+      process.exitCode = 1;
+    }
+  }));
+
+routerCmd
+  .command('history')
+  .description('Show routing evaluation history')
+  .option('-l, --limit <count>', 'Number of entries to show', '10')
+  .option('-v, --verbose', 'Show detailed evaluation information')
+  .action(handleCommand('router.history', async (options) => {
+    const router = new RoutingPolicyService();
+    try {
+      const limit = parseInt(options.limit);
+      const history = router.getEvaluationHistory(limit);
+      
+      console.log(chalk.cyan(`📊 Routing History (last ${history.length} evaluations):`));
+      
+      if (history.length === 0) {
+        console.log(chalk.gray('  No evaluation history found'));
+        return;
+      }
+      
+      history.forEach((evaluation, i) => {
+        const timestamp = evaluation.metadata.timestamp.toLocaleString();
+        console.log(`\n${i + 1}. ${chalk.bold(evaluation.agentType)} (${timestamp})`);
+        console.log(`   Confidence: ${(evaluation.confidence * 100).toFixed(1)}%`);
+        console.log(`   Reasoning: ${evaluation.reasoning}`);
+        
+        if (options.verbose) {
+          console.log(`   Evaluation ID: ${evaluation.metadata.evaluationId.slice(0, 12)}...`);
+          console.log(`   Processing time: ${evaluation.metadata.processingTimeMs}ms`);
+          console.log(`   Rules applied: ${evaluation.metadata.rulesApplied.join(', ') || 'none'}`);
+          if (evaluation.alternatives.length > 0) {
+            console.log(`   Alternatives: ${evaluation.alternatives.map(a => a.agentType).join(', ')}`);
+          }
+        }
+      });
+    } catch (error) {
+      console.error(chalk.red(`❌ Failed to retrieve history: ${error}`));
+      process.exitCode = 1;
     }
   }));
 

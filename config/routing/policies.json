@@ -1,0 +1,96 @@
+[
+  {
+    "id": "code-implementation",
+    "name": "Code Implementation",
+    "description": "Route code implementation requests to code workers",
+    "precedence": 100,
+    "conditions": {
+      "keywords": [
+        "implement",
+        "code",
+        "function",
+        "class",
+        "method",
+        "develop",
+        "write"
+      ],
+      "patterns": [
+        "implement.*function",
+        "create.*class",
+        "write.*code"
+      ]
+    },
+    "target": "code_worker",
+    "confidence": 0.9,
+    "fallback": "validation_worker",
+    "metadata": {
+      "created": "2025-09-27T03:32:47.817Z",
+      "lastModified": "2025-09-27T03:32:47.817Z",
+      "creator": "system",
+      "version": "1.0.0",
+      "enabled": true
+    }
+  },
+  {
+    "id": "data-processing",
+    "name": "Data Processing",
+    "description": "Route data processing and analysis requests",
+    "precedence": 90,
+    "conditions": {
+      "keywords": [
+        "data",
+        "analyze",
+        "process",
+        "transform",
+        "etl",
+        "pipeline"
+      ],
+      "patterns": [
+        "analyze.*data",
+        "process.*dataset",
+        "transform.*data"
+      ]
+    },
+    "target": "data_worker",
+    "confidence": 0.85,
+    "fallback": "code_worker",
+    "metadata": {
+      "created": "2025-09-27T03:32:47.817Z",
+      "lastModified": "2025-09-27T03:32:47.817Z",
+      "creator": "system",
+      "version": "1.0.0",
+      "enabled": true
+    }
+  },
+  {
+    "id": "validation-testing",
+    "name": "Validation and Testing",
+    "description": "Route validation and testing requests",
+    "precedence": 80,
+    "conditions": {
+      "keywords": [
+        "test",
+        "validate",
+        "verify",
+        "check",
+        "audit",
+        "quality"
+      ],
+      "patterns": [
+        "test.*code",
+        "validate.*input",
+        "verify.*output"
+      ]
+    },
+    "target": "validation_worker",
+    "confidence": 0.85,
+    "fallback": "code_worker",
+    "metadata": {
+      "created": "2025-09-27T03:32:47.817Z",
+      "lastModified": "2025-09-27T03:32:47.817Z",
+      "creator": "system",
+      "version": "1.0.0",
+      "enabled": true
+    }
+  }
+]
