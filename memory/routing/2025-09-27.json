@@ -1544,5 +1544,198 @@
         "data-processing"
       ]
     }
+  },
+  {
+    "agentType": "code_worker",
+    "confidence": 0.9,
+    "reasoning": "Matched rule: Code Implementation - Route code implementation requests to code workers",
+    "alternatives": [],
+    "metadata": {
+      "evaluationId": "e5bceaba29a408c240e1db0664718ed3",
+      "timestamp": "2025-09-27T17:24:03.128Z",
+      "processingTimeMs": 1,
+      "rulesApplied": [
+        "code-implementation"
+      ]
+    }
+  },
+  {
+    "agentType": "data_worker",
+    "confidence": 0.85,
+    "reasoning": "Matched rule: Data Processing - Route data processing and analysis requests",
+    "alternatives": [],
+    "metadata": {
+      "evaluationId": "896a25db5a47b579965bbd722bc219f5",
+      "timestamp": "2025-09-27T17:24:03.135Z",
+      "processingTimeMs": 0,
+      "rulesApplied": [
+        "data-processing"
+      ]
+    }
+  },
+  {
+    "agentType": "validation_worker",
+    "confidence": 0.85,
+    "reasoning": "Matched rule: Validation and Testing - Route validation and testing requests",
+    "alternatives": [],
+    "metadata": {
+      "evaluationId": "8e55f0448186bb8350eeb0b61e8ca79d",
+      "timestamp": "2025-09-27T17:24:03.139Z",
+      "processingTimeMs": 1,
+      "rulesApplied": [
+        "validation-testing"
+      ]
+    }
+  },
+  {
+    "agentType": "code_worker",
+    "confidence": 0.6,
+    "reasoning": "Default routing based on prompt analysis",
+    "alternatives": [
+      {
+        "agentType": "code_worker",
+        "confidence": 0,
+        "reasoning": "General-purpose fallback"
+      }
+    ],
+    "metadata": {
+      "evaluationId": "ff567b50cc0527307bccca4d5cd01ca9",
+      "timestamp": "2025-09-27T17:24:03.142Z",
+      "processingTimeMs": 1,
+      "rulesApplied": []
+    }
+  },
+  {
+    "agentType": "validation_worker",
+    "confidence": 0.95,
+    "reasoning": "Matched rule: Custom Code Rule - Higher precedence code rule",
+    "alternatives": [
+      {
+        "agentType": "code_worker",
+        "confidence": 0.7200000000000001,
+        "reasoning": "Alternative from rule: Code Implementation"
+      },
+      {
+        "agentType": "validation_worker",
+        "confidence": 0.68,
+        "reasoning": "Alternative from rule: Validation and Testing"
+      }
+    ],
+    "metadata": {
+      "evaluationId": "17c1e4ef20cfa1aefa44f58421831e48",
+      "timestamp": "2025-09-27T17:24:03.144Z",
+      "processingTimeMs": 0,
+      "rulesApplied": [
+        "custom-code-rule",
+        "code-implementation",
+        "validation-testing"
+      ]
+    }
+  },
+  {
+    "agentType": "swarm_coordinator",
+    "confidence": 0.88,
+    "reasoning": "Matched rule: Pattern Rule - Rule that matches regex patterns",
+    "alternatives": [],
+    "metadata": {
+      "evaluationId": "5827ccf84e645c1b9d60a88413b9c545",
+      "timestamp": "2025-09-27T17:24:03.162Z",
+      "processingTimeMs": 1,
+      "rulesApplied": [
+        "pattern-rule"
+      ]
+    }
+  },
+  {
+    "agentType": "consensus_coordinator",
+    "confidence": 0.9,
+    "reasoning": "Matched rule: Short Prompt Rule - Rule for short prompts only",
+    "alternatives": [],
+    "metadata": {
+      "evaluationId": "80e7540a791704c7a0a70eb95b77289e",
+      "timestamp": "2025-09-27T17:24:03.164Z",
+      "processingTimeMs": 0,
+      "rulesApplied": [
+        "short-prompt-rule"
+      ]
+    }
+  },
+  {
+    "agentType": "code_worker",
+    "confidence": 0.8,
+    "reasoning": "Code-related keywords detected",
+    "alternatives": [
+      {
+        "agentType": "code_worker",
+        "confidence": 0,
+        "reasoning": "General-purpose fallback"
+      }
+    ],
+    "metadata": {
+      "evaluationId": "59234b157778cdc9edf85629d4910dff",
+      "timestamp": "2025-09-27T17:24:03.165Z",
+      "processingTimeMs": 0,
+      "rulesApplied": []
+    }
+  },
+  {
+    "agentType": "code_worker",
+    "confidence": 0.9,
+    "reasoning": "Matched rule: Code Implementation - Route code implementation requests to code workers",
+    "alternatives": [],
+    "metadata": {
+      "evaluationId": "4e6ed093ccf701e77bcc92305c7afdc5",
+      "timestamp": "2025-09-27T17:24:03.167Z",
+      "processingTimeMs": 1,
+      "rulesApplied": [
+        "code-implementation"
+      ]
+    }
+  },
+  {
+    "agentType": "code_worker",
+    "confidence": 0.8,
+    "reasoning": "Code-related keywords detected",
+    "alternatives": [
+      {
+        "agentType": "code_worker",
+        "confidence": 0,
+        "reasoning": "General-purpose fallback"
+      }
+    ],
+    "metadata": {
+      "evaluationId": "bb80f637c48f40e24428a95e15a31e21",
+      "timestamp": "2025-09-27T17:24:03.169Z",
+      "processingTimeMs": 0,
+      "rulesApplied": []
+    }
+  },
+  {
+    "agentType": "code_worker",
+    "confidence": 0.9,
+    "reasoning": "Matched rule: Code Implementation - Route code implementation requests to code workers",
+    "alternatives": [],
+    "metadata": {
+      "evaluationId": "15a8ec3e65eeafa59ce7926560593465",
+      "timestamp": "2025-09-27T17:24:03.173Z",
+      "processingTimeMs": 0,
+      "rulesApplied": [
+        "code-implementation"
+      ]
+    }
+  },
+  {
+    "agentType": "data_worker",
+    "confidence": 0.85,
+    "reasoning": "Matched rule: Data Processing - Route data processing and analysis requests",
+    "alternatives": [],
+    "metadata": {
+      "evaluationId": "c84473366c7cc214298cc8abc8a6e1a9",
+      "timestamp": "2025-09-27T17:24:03.174Z",
+      "processingTimeMs": 0,
+      "rulesApplied": [
+        "data-processing"
+      ]
+    }
   }
 ]
