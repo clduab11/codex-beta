@@ -3,7 +3,7 @@ SynapticLoop class implementing the core cognitive cycle for the Codex-Synaptic 
 Inspired by the BDI (Belief-Desire-Intention) model.
 """
 
-from codex import Codex
+from .codex import Codex
 from typing import Set, List
 
 
@@ -13,16 +13,17 @@ class SynapticLoop:
     belief updating, and intention formation.
     """
     
-    def __init__(self, codex_db_path: str = "./codex_db", use_mock_embeddings: bool = False):
+    def __init__(self, codex_db_path: str = "./codex_db", use_mock_embeddings: bool = False, openai_api_key: str = None):
         """
         Initialize the SynapticLoop with a Codex instance and belief set.
         
         Args:
             codex_db_path: Path to the Codex database directory
             use_mock_embeddings: If True, use mock embeddings for offline testing
+            openai_api_key: OpenAI API key for embeddings
         """
         # Initialize the Codex for long-term memory
-        self.codex = Codex(codex_db_path, use_mock_embeddings)
+        self.codex = Codex(codex_db_path, use_mock_embeddings, openai_api_key)
         
         # Initialize beliefs as a set of strings
         self.beliefs: Set[str] = set()

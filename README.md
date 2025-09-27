@@ -145,6 +145,70 @@ graph TB
     A2A --> API
 ```
 
+## 🧠 Python Cognitive Architecture (Sprint 2)
+
+Alongside the distributed TypeScript orchestration system, Codex-Synaptic includes a **foundational cognitive architecture** implemented in Python. This BDI-inspired (Belief-Desire-Intention) system focuses on individual agent cognitive loops rather than swarm coordination.
+
+### Core Components
+
+#### Memory Model
+```python
+from python.memory_model import Memory
+
+memory = Memory(
+    content="User input text",
+    embedding=[0.1, 0.2, 0.3, ...],  # OpenAI embedding vector
+    metadata={"source": "user_input"}  
+)
+```
+
+#### The Codex - Vector Memory System
+```python
+from python.codex import Codex
+
+codex = Codex("./codex_db")
+memory = codex.add_memory("I love learning about AI systems")
+related = codex.retrieve_memory("artificial intelligence", top_k=5)
+```
+
+#### The Synaptic Loop - Cognitive Cycle
+```python
+from python.synaptic_loop import SynapticLoop
+
+agent = SynapticLoop()
+agent.process_sensory_input("Hello, how do neural networks work?")
+# Automatically: stores memory → updates beliefs → runs cognitive cycle → forms intentions
+```
+
+### Features
+
+- **OpenAI Embeddings**: Uses `text-embedding-3-small` for high-quality semantic representations
+- **ChromaDB Integration**: Persistent vector database for long-term memory
+- **BDI Architecture**: Belief-Desire-Intention model for cognitive processing
+- **CLI Interface**: Interactive command-line experience
+- **Offline Fallback**: Mock embeddings when OpenAI API is unavailable
+
+### Quick Start
+
+```bash
+# Install Python dependencies
+pip install -r python/requirements.txt
+
+# Set OpenAI API key (optional - will use mock embeddings if not set)
+export OPENAI_API_KEY="your-api-key-here"
+
+# Run the cognitive agent
+python python/main.py
+```
+
+### Integration with Distributed System
+
+The Python cognitive architecture complements the TypeScript swarm intelligence:
+
+- **Individual vs Collective**: Python focuses on single-agent cognition, TypeScript on multi-agent coordination
+- **Memory vs Coordination**: Python handles knowledge storage/retrieval, TypeScript manages agent communication
+- **Complementary Approaches**: Both systems can work together via MCP/A2A bridges for hybrid intelligence
+
 ## 🚀 Quick Start
 
 ### Installation

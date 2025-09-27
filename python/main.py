@@ -3,7 +3,8 @@ Main application entry point for the Codex-Synaptic agent.
 Provides a command-line interface for interacting with the cognitive system.
 """
 
-from synaptic_loop import SynapticLoop
+from .synaptic_loop import SynapticLoop
+import os
 
 
 def main():
@@ -13,15 +14,27 @@ def main():
     print("🧠⚡ Welcome to Codex-Synaptic Cognitive Architecture")
     print("=" * 60)
     print("This is the foundational cognitive agent implementing:")
-    print("• The Codex - Long-term vector memory system")
+    print("• The Codex - Long-term vector memory system with OpenAI embeddings")
     print("• The Synaptic Loop - Core sense-think-act cycle")
     print("• Belief-Desire-Intention (BDI) inspired architecture")
     print("=" * 60)
     print("Type 'quit' or 'exit' to terminate the session.\n")
     
-    # Initialize the SynapticLoop agent
-    # The agent will automatically fall back to mock embeddings if offline
-    agent = SynapticLoop()
+    # Get OpenAI API key from environment or use mock embeddings
+    openai_api_key = os.getenv('OPENAI_API_KEY')
+    use_mock_embeddings = openai_api_key is None
+    
+    if use_mock_embeddings:
+        print("⚠️  No OPENAI_API_KEY found in environment. Using mock embeddings.")
+        print("   Set OPENAI_API_KEY environment variable to use real OpenAI embeddings.\n")
+    
+    try:
+        # Initialize the SynapticLoop agent
+        agent = SynapticLoop(use_mock_embeddings=use_mock_embeddings, openai_api_key=openai_api_key)
+    except Exception as e:
+        print(f"❌ Failed to initialize agent: {e}")
+        print("Please check your configuration and try again.")
+        return
     
     # Main interaction loop
     while True:
@@ -30,7 +43,7 @@ def main():
             user_input = input("> ").strip()
             
             # Check for exit commands
-            if user_input.lower() in ['quit', 'exit']:
+            if user_input.lower() in ['quit', 'exit', 'q']:
                 print("\n👋 Goodbye! Shutting down Codex-Synaptic agent...")
                 break
             

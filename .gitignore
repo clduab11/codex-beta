@@ -21,26 +21,8 @@ yarn-error.log*
 temp/
 
 # Python cognitive architecture
+python/__pycache__/
+python/*.pyc
+python/.pytest_cache/
 codex_db/
-demo_codex_db/
-test_*_db/
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
+python/.env

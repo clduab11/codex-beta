@@ -1,0 +1,5 @@
+python/
+codex_db/
+*.pyc
+__pycache__/
+.pytest_cache/
