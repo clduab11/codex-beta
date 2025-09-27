@@ -28,6 +28,7 @@ import type {
   ContextLogEntry
 } from '../types/codex-context.js';
 import { RetryManager } from '../core/errors.js';
+import { InstructionParser } from '../instructions/index.js';
 
 const program = new Command();
 const session = CliSession.getInstance();
@@ -379,6 +380,116 @@ backgroundCmd
       case 'timeout':
         console.log(chalk.yellow('⚠️  Background system did not stop before timeout.')); 
         break;
+    }
+  }));
+
+// Instructions commands
+const instructionsCmd = program.command('instructions').description('Instruction processing and cache management');
+
+instructionsCmd
+  .command('sync')
+  .description('Synchronize and cache AGENTS.md instructions from repository')
+  .option('-r, --root <path>', 'Repository root path', process.cwd())
+  .option('--no-cache', 'Skip cache and force fresh scan')
+  .option('-v, --verbose', 'Show detailed processing information')
+  .action(handleCommand('instructions.sync', async (options) => {
+    const parser = new InstructionParser();
+    try {
+      console.log(chalk.cyan('🔄 Synchronizing instruction files...'));
+      
+      const startTime = Date.now();
+      const context = await parser.parseInstructions(options.root, options.cache);
+      const duration = Date.now() - startTime;
+      
+      if (options.verbose) {
+        console.log(chalk.gray(`Processed ${context.metadata.length} instruction files`));
+        console.log(chalk.gray(`Precedence chain: ${context.precedenceChain.join(' → ')}`));
+        console.log(chalk.gray(`Context hash: ${context.contextHash}`));
+        console.log(chalk.gray(`Total size: ${context.aggregatedSize} bytes`));
+        console.log(chalk.gray(`Processing time: ${duration}ms`));
+      }
+      
+      console.log(chalk.green(`✅ Instructions synchronized successfully`));
+      console.log(`📁 Files processed: ${context.metadata.length}`);
+      console.log(`🔗 Context hash: ${context.contextHash.slice(0, 12)}...`);
+      
+    } catch (error) {
+      console.error(chalk.red(`❌ Failed to sync instructions: ${error}`));
+      process.exitCode = 1;
+    } finally {
+      await parser.close();
+    }
+  }));
+
+instructionsCmd
+  .command('validate')
+  .argument('[file]', 'Specific AGENTS.md file to validate (optional)')
+  .description('Validate AGENTS.md file syntax and structure')
+  .option('-r, --root <path>', 'Repository root path', process.cwd())
+  .action(handleCommand('instructions.validate', async (file, options) => {
+    const parser = new InstructionParser();
+    try {
+      if (file) {
+        // Validate specific file
+        console.log(chalk.cyan(`🔍 Validating ${file}...`));
+        const result = await parser.validateInstructionSyntax(file);
+        
+        if (result.isValid) {
+          console.log(chalk.green(`✅ ${file} is valid`));
+        } else {
+          console.log(chalk.red(`❌ ${file} has validation errors:`));
+          result.errors.forEach(error => console.log(chalk.red(`  • ${error}`)));
+          process.exitCode = 1;
+        }
+      } else {
+        // Validate all files in repository
+        console.log(chalk.cyan('🔍 Validating all instruction files...'));
+        const context = await parser.parseInstructions(options.root, false);
+        
+        const invalidFiles = context.metadata.filter(m => !m.isValid);
+        if (invalidFiles.length === 0) {
+          console.log(chalk.green(`✅ All ${context.metadata.length} instruction files are valid`));
+        } else {
+          console.log(chalk.red(`❌ Found ${invalidFiles.length} invalid files:`));
+          invalidFiles.forEach(file => {
+            console.log(chalk.red(`  • ${file.path}:`));
+            file.validationErrors?.forEach(error => console.log(chalk.red(`    - ${error}`)));
+          });
+          process.exitCode = 1;
+        }
+      }
+    } catch (error) {
+      console.error(chalk.red(`❌ Validation failed: ${error}`));
+      process.exitCode = 1;
+    } finally {
+      await parser.close();
+    }
+  }));
+
+instructionsCmd
+  .command('cache')
+  .description('Manage instruction cache')
+  .option('--clear [path]', 'Clear cache for specific path or all if no path given')
+  .option('--status', 'Show cache status')
+  .action(handleCommand('instructions.cache', async (options) => {
+    const parser = new InstructionParser();
+    try {
+      if (options.clear !== undefined) {
+        const pathToClear = options.clear || undefined;
+        await parser.clearCache(pathToClear);
+        console.log(chalk.green(`✅ Cache cleared${pathToClear ? ` for ${pathToClear}` : ''}`));
+      } else if (options.status) {
+        console.log(chalk.cyan('📊 Cache status:'));
+        // TODO: Implement cache status display
+        console.log(chalk.gray('Cache status display coming soon...'));
+      } else {
+        console.log(chalk.yellow('⚠️  Please specify --clear or --status'));
+      }
+    } catch (error) {
+      console.error(chalk.red(`❌ Cache operation failed: ${error}`));
+      process.exitCode = 1;
+    } finally {
+      await parser.close();
     }
   }));
 
