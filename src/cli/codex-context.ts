@@ -2,6 +2,7 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { createHash } from 'node:crypto';
 import { scanRepository, type AgentsGuide } from '../core/scanner.js';
+import { InstructionParser, InstructionPrecedence } from '../instructions/index.js';
 import type {
   CodexContext,
   CodexContextAggregationMetadata,
@@ -59,6 +60,7 @@ interface ArtifactScanResult {
 
 export interface CodexContextBuilderOptions {
   useCache?: boolean;
+  useEnhancedInstructionParser?: boolean;
 }
 
 export interface CodexContextBuildResult {
@@ -70,6 +72,7 @@ export interface CodexContextBuildResult {
 export class CodexContextBuilder {
   private readonly root: string;
   private readonly useCache: boolean;
+  private readonly useEnhancedParser: boolean;
   private logs: ContextLogEntry[] = [];
   private partial: Partial<CodexContext> = {};
   private watches: Record<string, WatchInfo> = {};
@@ -84,6 +87,7 @@ export class CodexContextBuilder {
   constructor(rootDir: string, options: CodexContextBuilderOptions = {}) {
     this.root = path.resolve(rootDir);
     this.useCache = options.useCache !== false;
+    this.useEnhancedParser = options.useEnhancedInstructionParser || false;
   }
 
   async withAgentDirectives(): Promise<this> {
@@ -91,6 +95,81 @@ export class CodexContextBuilder {
       return this;
     }
 
+    if (this.useEnhancedParser) {
+      return this.withEnhancedAgentDirectives();
+    } else {
+      return this.withLegacyAgentDirectives();
+    }
+  }
+
+  private async withEnhancedAgentDirectives(): Promise<this> {
+    const parser = new InstructionParser();
+    try {
+      const context = await parser.parseInstructions(this.root, this.useCache);
+      
+      this.partial.agentDirectives = context.agentDirectives;
+      this.metadata.agentGuideCount = context.metadata.length;
+      
+      // Convert instruction parser logs to context logs
+      if (context.metadata.length > 0) {
+        this.logs.push({
+          level: 'info',
+          message: 'Enhanced instruction parser loaded directives with precedence handling.',
+          details: {
+            filesProcessed: context.metadata.length,
+            precedenceChain: context.precedenceChain.join(' → '),
+            contextHash: context.contextHash.slice(0, 12),
+            totalSize: context.aggregatedSize
+          }
+        });
+
+        // Log individual files with precedence levels
+        context.metadata.forEach(meta => {
+          this.logs.push({
+            level: 'info',
+            message: 'Loaded instruction file with precedence.',
+            details: {
+              path: meta.path,
+              precedence: InstructionPrecedence[meta.precedence],
+              bytes: meta.size,
+              valid: meta.isValid
+            }
+          });
+
+          if (!meta.isValid && meta.validationErrors) {
+            this.logs.push({
+              level: 'warn',
+              message: 'Instruction file has validation issues.',
+              details: {
+                path: meta.path,
+                errors: meta.validationErrors
+              }
+            });
+          }
+
+          // Track file for cache invalidation
+          const fullPath = path.join(this.root, meta.path);
+          this.trackWatch(fullPath);
+        });
+      } else {
+        this.logs.push({ level: 'warn', message: 'No AGENTS.md files found – using default enhanced directives.' });
+      }
+
+    } catch (error) {
+      this.logs.push({
+        level: 'error',
+        message: 'Enhanced instruction parser failed, falling back to legacy parser.',
+        details: { error: String(error) }
+      });
+      return this.withLegacyAgentDirectives();
+    } finally {
+      await parser.close();
+    }
+
+    return this;
+  }
+
+  private async withLegacyAgentDirectives(): Promise<this> {
     const guides = await this.loadAgentGuides();
     this.metadata.agentGuideCount = guides.length;
     if (!guides.length) {
