@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Memory Bridge provides seamless integration between TypeScript-based local storage (SQLite) and Python-based vector storage (ChromaDB), enabling unified memory management across the codex-synaptic ecosystem.
+The Memory Bridge provides seamless integration between TypeScript-based local storage (SQLite) and Python-based vector storage (ChromaDB), enabling unified memory management across the codex-synaptic ecosystem with bi-directional synchronization and conflict resolution.
 
 ## Architecture
 
@@ -10,8 +10,14 @@ The Memory Bridge provides seamless integration between TypeScript-based local s
 ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
 │   TypeScript    │    │  Memory Bridge  │    │     Python      │
 │     SQLite      │◄──►│   Interface     │◄──►│    ChromaDB     │
-│   (Local Store) │    │                 │    │ (Vector Store)  │
+│   (Local Store) │    │  (Reconciler)   │    │ (Vector Store)  │
 └─────────────────┘    └─────────────────┘    └─────────────────┘
+         ▲                       │                        ▲
+         │                       ▼                        │
+         │              ┌─────────────────┐               │
+         └──────────────►│  Consistency    │◄──────────────┘
+                         │   Validator     │
+                         └─────────────────┘
 ```
 
 ## Interface Contract
@@ -40,13 +46,115 @@ vectorized: boolean     # Whether embedding was generated successfully
 - `RETRYABLE`: Transient failures (network, temporary storage unavailable)
 - `NON_RETRYABLE`: Permanent failures (invalid namespace, schema mismatch)
 
-**Implementation Notes:**
-- Synchronous storage in SQLite
-- Asynchronous embedding generation in ChromaDB
-- Automatic retry logic for retryable errors
-- Idempotent operations (safe to retry)
-
 #### `semanticQuery(namespace, query, k?)`
+
+Performs semantic search across stored memories using vector similarity matching.
+
+**Input Schema:**
+```yaml
+namespace: string        # Memory namespace to search within
+query: string           # Semantic query text
+k: optional|number      # Maximum number of results (default: 10)
+```
+
+**Output Schema:**
+```yaml
+results: array<MemoryHit> # Ranked results by similarity score
+```
+
+**Error Types:**
+- `QUERY_TIMEOUT`: Search operation exceeded time limit
+- `INVALID_NAMESPACE`: Specified namespace does not exist
+
+#### `reconcile(namespace, strategy)`
+
+Resolves divergence between TypeScript SQLite and Python ChromaDB stores using specified conflict resolution strategy.
+
+**Input Schema:**
+```yaml
+namespace: string                    # Namespace to reconcile
+strategy: enum[ts-wins|py-wins|merge] # Conflict resolution strategy
+```
+
+**Output Schema:**
+```yaml
+actions: array<ReconcileAction>      # List of actions taken during reconciliation
+```
+
+**Reconciliation Strategies:**
+- `ts-wins`: TypeScript SQLite store takes precedence for conflicts
+- `py-wins`: Python ChromaDB store takes precedence for conflicts  
+- `merge`: Intelligent merge based on timestamps and content analysis
+
+**Error Types:**
+- `RECONCILIATION_FAILED`: Unable to resolve conflicts automatically
+- `STRATEGY_NOT_SUPPORTED`: Invalid or unsupported reconciliation strategy
+
+#### `getMemoryById(namespace, id)`
+
+Retrieves a specific memory entry by its unique identifier.
+
+**Input Schema:**
+```yaml
+namespace: string        # Memory namespace
+id: string              # Unique memory identifier
+```
+
+**Output Schema:**
+```yaml
+memory: MemoryEntry|null # Memory entry or null if not found
+```
+
+**Error Types:**
+- `MEMORY_NOT_FOUND`: No memory exists with the specified ID
+
+#### `deleteMemory(namespace, id)`
+
+Removes a memory entry from both TypeScript SQLite and Python ChromaDB stores.
+
+**Input Schema:**
+```yaml
+namespace: string        # Memory namespace
+id: string              # Unique memory identifier
+```
+
+**Output Schema:**
+```yaml
+deleted: boolean         # Whether deletion was successful
+```
+
+**Error Types:**
+- `DELETE_FAILED`: Unable to delete from one or both stores
+
+## Data Types
+
+### MemoryHit
+```yaml
+id: string               # Unique memory identifier
+text: string            # Original textual content
+metadata: object        # Associated metadata
+similarity_score: number # Semantic similarity score (0.0-1.0)
+timestamp: ISO8601      # When the memory was created/updated
+```
+
+### MemoryEntry
+```yaml
+id: string               # Unique memory identifier
+namespace: string        # Memory namespace
+text: string            # Textual content
+metadata: object        # Associated metadata
+created_at: ISO8601     # Creation timestamp
+updated_at: ISO8601     # Last modification timestamp
+vectorized: boolean     # Whether embedding exists in ChromaDB
+```
+
+### ReconcileAction
+```yaml
+id: string               # Memory identifier
+action: enum[add|update|delete|noop] # Action taken during reconciliation
+source: enum[ts|py]      # Which store was the source of truth
+reason: string           # Human-readable explanation
+```
 
 Performs semantic search across stored memories using vector similarity.
 
