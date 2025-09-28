@@ -289,7 +289,16 @@ export class CodexSynapticSystem extends EventEmitter {
 
   async primeCodexInterface(context: CodexContext, envelope: CodexPromptEnvelope): Promise<void> {
     const username = process.env.CODEX_CLI_USERNAME ?? 'admin';
-    const password = process.env.CODEX_CLI_PASSWORD ?? 'admin123!';
+    const password = process.env.CODEX_CLI_PASSWORD;
+
+    if (!password) {
+      this.logger.error('system', 'CODEX_CLI_PASSWORD environment variable is required for authentication');
+      throw new CodexSynapticError(
+        ErrorCode.AGENT_NOT_FOUND,
+        'Authentication credentials not configured. Set CODEX_CLI_PASSWORD environment variable.',
+        { username, contextHash: context.contextHash }
+      );
+    }
 
     try {
       await this.authManager.authenticate(username, password);

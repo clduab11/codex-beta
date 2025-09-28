@@ -28,6 +28,7 @@ import type {
   ContextLogEntry
 } from '../types/codex-context.js';
 import { RetryManager } from '../core/errors.js';
+import { HiveMindYamlFormatter, YamlFeedforwardFilter, EndpointCapabilities } from '../utils/yaml-output.js';
 import { InstructionParser } from '../instructions/index.js';
 import { RoutingPolicyService } from '../router/index.js';
 
@@ -945,6 +946,7 @@ hiveMindCmd
   .option('--mcp', 'Enable MCP bridge connections')
   .option('--debug', 'Enable debug logging')
   .option('--dry-run', 'Preview Codex context without executing the hive-mind spawn')
+  .option('--yaml', 'Output results in YAML format (default: JSON)')
   .action(handleCommand('hive-mind.spawn', async (promptParts: string[], options) => {
     let prompt = promptParts.join(' ').trim();
     if (!prompt) {
@@ -1108,39 +1110,76 @@ hiveMindCmd
         const totalTime = Date.now() - startTime;
         console.log(chalk.green(`\n🎉 Hive-mind execution completed in ${totalTime}ms`));
         
-        // Display comprehensive results
-        console.log(chalk.blue('\n📊 Execution Summary'));
-        console.log(chalk.white('Summary:'), (outcome as any).summary);
-        
-        if ((outcome as any).artifacts?.code) {
-          console.log(chalk.blue('\n💻 Generated Code Artifacts:'));
-          console.log(chalk.gray((outcome as any).artifacts.code.substring(0, 500) + '...'));
-        }
-        
-        if ((outcome as any).stages && Array.isArray((outcome as any).stages)) {
-          console.log(chalk.blue('\n🔄 Stage Results:'));
-          (outcome as any).stages.forEach((stage: any, idx: number) => {
-            console.log(chalk.cyan(`  ${idx + 1}. ${stage.stage} (${stage.taskId})`));
-            if (stage.result?.summary) {
-              console.log(chalk.gray(`     ${stage.result.summary}`));
-            }
-          });
-        }
-
-        // System metrics
-        console.log(chalk.blue('\n📈 System Metrics:'));
+        // Collect system status information
         const swarmStatus = system.getSwarmCoordinator().getStatus();
         const meshStatus = system.getNeuralMesh().getStatus();
         const agentRegistry = system.getAgentRegistry().getStatus();
         
-        console.log(chalk.white(`  Agents: ${agentRegistry.totalAgents} active`));
-        console.log(chalk.white(`  Mesh: ${meshStatus.nodeCount} nodes, ${meshStatus.connectionCount} connections`));
-        console.log(chalk.white(`  Swarm: ${swarmStatus.algorithm}, optimizing=${swarmStatus.isOptimizing}`));
-        console.log(chalk.white(`  Execution time: ${totalTime}ms`));
+        // Prepare comprehensive result data
+        const resultData = {
+          executionId: `exec-${Date.now()}`,
+          status: 'completed',
+          duration: totalTime,
+          originalPrompt,
+          summary: (outcome as any).summary,
+          artifacts: (outcome as any).artifacts || {},
+          stages: (outcome as any).stages || [],
+          agentCount: agentRegistry.totalAgents,
+          taskCount: (outcome as any).stages?.length || 0,
+          meshStatus: {
+            nodeCount: meshStatus.nodeCount,
+            connectionCount: meshStatus.connectionCount
+          },
+          consensusStatus: {
+            totalVotes: 0 // Would need to be tracked from actual consensus operations
+          },
+          swarmStatus: {
+            algorithm: swarmStatus.algorithm,
+            isOptimizing: swarmStatus.isOptimizing
+          },
+          codexContext: codexContext ? {
+            enabled: true,
+            contextHash: codexContext.contextHash,
+            sizeBytes: codexContext.sizeBytes
+          } : { enabled: false }
+        };
 
-        if (!config.debug) {
-          console.log(chalk.blue('\n💾 Results saved to session telemetry'));
+        // Output results based on format preference
+        if (options.yaml) {
+          console.log(chalk.blue('\n📋 Results (YAML format):'));
+          const yamlOutput = HiveMindYamlFormatter.formatExecutionResult(resultData);
+          console.log(yamlOutput);
         } else {
+          // Display comprehensive results in human-readable format
+          console.log(chalk.blue('\n📊 Execution Summary'));
+          console.log(chalk.white('Summary:'), (outcome as any).summary);
+          
+          if ((outcome as any).artifacts?.code) {
+            console.log(chalk.blue('\n💻 Generated Code Artifacts:'));
+            console.log(chalk.gray((outcome as any).artifacts.code.substring(0, 500) + '...'));
+          }
+          
+          if ((outcome as any).stages && Array.isArray((outcome as any).stages)) {
+            console.log(chalk.blue('\n🔄 Stage Results:'));
+            (outcome as any).stages.forEach((stage: any, idx: number) => {
+              console.log(chalk.cyan(`  ${idx + 1}. ${stage.stage} (${stage.taskId})`));
+              if (stage.result?.summary) {
+                console.log(chalk.gray(`     ${stage.result.summary}`));
+              }
+            });
+          }
+
+          // System metrics
+          console.log(chalk.blue('\n📈 System Metrics:'));
+          console.log(chalk.white(`  Agents: ${agentRegistry.totalAgents} active`));
+          console.log(chalk.white(`  Mesh: ${meshStatus.nodeCount} nodes, ${meshStatus.connectionCount} connections`));
+          console.log(chalk.white(`  Swarm: ${swarmStatus.algorithm}, optimizing=${swarmStatus.isOptimizing}`));
+          console.log(chalk.white(`  Execution time: ${totalTime}ms`));
+        }
+
+        if (!config.debug && !options.yaml) {
+          console.log(chalk.blue('\n💾 Results saved to session telemetry'));
+        } else if (config.debug && !options.yaml) {
           console.log(chalk.blue('\n🔍 Full Debug Output:'));
           console.log(JSON.stringify(outcome, null, 2));
         }
@@ -1156,9 +1195,24 @@ hiveMindCmd
 hiveMindCmd
   .command('status')
   .description('Show status of active hive-mind swarms')
-  .action(handleCommand('hive-mind.status', async () => {
+  .option('--yaml', 'Output status in YAML format')
+  .action(handleCommand('hive-mind.status', async (options) => {
     await useSystem('hive-mind status', async (system) => {
-      renderSwarmStatus(system.getSwarmCoordinator().getStatus());
+      const systemStatus = {
+        ready: system.isReady(),
+        uptime: Date.now() - (system as any).startTime?.getTime() || 0,
+        agents: system.getAgentRegistry().getStatus(),
+        mesh: system.getNeuralMesh().getStatus(),
+        swarm: system.getSwarmCoordinator().getStatus(),
+        consensus: system.getConsensusManager().getStatus()
+      };
+
+      if (options.yaml) {
+        const yamlOutput = HiveMindYamlFormatter.formatSystemStatus(systemStatus);
+        console.log(yamlOutput);
+      } else {
+        renderSwarmStatus(systemStatus.swarm);
+      }
     });
   }));
 

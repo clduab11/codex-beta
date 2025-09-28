@@ -132,10 +132,20 @@ export class AuthenticationManager {
 
     this.users.set(adminUser.id, adminUser);
     
-    // Set default admin password (should be changed in production)
-    this.passwordHashes.set(adminUser.id, this.hashPassword('admin123!'));
-
-    this.logger.info('auth', 'Default admin user created', { username: adminUser.username });
+    // Generate secure random password or use environment variable
+    const adminPassword = process.env.CODEX_ADMIN_PASSWORD;
+    if (!adminPassword) {
+      // Generate a secure random password for the admin user
+      const randomPassword = randomBytes(16).toString('base64').replace(/[+/=]/g, '').substring(0, 16);
+      this.passwordHashes.set(adminUser.id, this.hashPassword(randomPassword));
+      this.logger.warn('auth', 'Admin user created with generated password. Set CODEX_ADMIN_PASSWORD environment variable for production', { 
+        username: adminUser.username,
+        generatedPassword: randomPassword 
+      });
+    } else {
+      this.passwordHashes.set(adminUser.id, this.hashPassword(adminPassword));
+      this.logger.info('auth', 'Admin user created with configured password', { username: adminUser.username });
+    }
   }
 
   private hashPassword(password: string): string {

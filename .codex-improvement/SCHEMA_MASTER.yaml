@@ -1,0 +1,203 @@
+version: 1
+meta:
+  issue_id: "SELF_IMPROVEMENT_INIT"
+  spec_version: "1.0.0"
+  generated_at: "2025-09-27T20:00:00Z"  # Replace with actual ISO8601 timestamp
+  segmentation:
+    allowed: true
+    part: 1            # If segmented
+    total_parts: 1     # Update if >1
+assumptions:
+  - "YAML-first output provides better structural adherence for LLM-generated content"  # Replace with actual assumptions
+summary:
+  problem: "Complete self-improvement implementation for codex-synaptic system"  # Replace with actual problem description (≤250 words)
+  objectives_ordered:
+    - id: OBJ1
+      title: "Architecture Modularization"
+    - id: OBJ2
+      title: "Swarm & Consensus Depth"
+    - id: OBJ3
+      title: "TS↔Python Memory Bridge"
+    - id: OBJ4
+      title: "Testing Strategy"
+    - id: OBJ5
+      title: "Telemetry Schema"
+    - id: OBJ6
+      title: "Security & Governance"
+    - id: OBJ7
+      title: "CLI/UX Validation"
+    - id: OBJ8
+      title: "Docs Decomposition"
+    - id: OBJ9
+      title: "Release Automation"
+    - id: OBJ10
+      title: "Python Alignment"
+gap_analysis:
+  - focus: "Architecture"
+    current: "Monolithic CodexSynapticSystem handling all orchestration"  # Replace with actual current state
+    target: "Modular architecture with clear boundaries"  # Replace with actual target state
+  - focus: "Swarm/Consensus"
+    current: "Basic PSO implementation with simple consensus"  # Replace with actual current state
+    target: "Enhanced algorithms with adaptive parameters"  # Replace with actual target state
+backlog:
+  items:
+    - id: B1
+      title: "Define module boundary map"
+      rationale: "Establish clear architectural boundaries for modular design"  # Replace with actual rationale
+      effort: M        # S|M|L
+      risk: L          # L|M|H
+      depends: []
+      acceptance:
+        - "Map enumerates core, mesh, swarm, consensus, memory, telemetry, security layers"
+    - id: B2
+      title: "Memory bridge v1 spec"
+      rationale: "Define interface contract for TS↔Python integration"  # Replace with actual rationale
+      effort: M
+      risk: M
+      depends: [B1]
+      acceptance:
+        - "YAML interface contract stored at .codex-improvement/MEMORY_BRIDGE_SPEC.md"
+refactor_proposals:
+  - id: RP1
+    current_structure: ["CodexSynapticSystem (monolith)"]
+    proposed_structure:
+      modules:
+        - core.orchestrator
+        - mesh.topology
+        - swarm.engine
+        - consensus.manager
+        - memory.bridge
+        - telemetry.bus
+        - security.guard
+    benefits:
+      - "Reduced coupling"
+      - "Test isolation"
+    migration_steps:
+      - "Extract mesh logic into mesh.topology"
+      - "Introduce orchestrator facade"
+test_strategy:
+  coverage_goals:
+    statements: 0.75
+    branches: 0.65
+  layers:
+    unit:
+      tools: ["Vitest|Jest"]
+    integration:
+      env: "ephemeral SQLite"
+    scenario:
+      focus: ["mesh reconfigure", "consensus quorum variance"]
+    regression:
+      trigger: "Release candidate tag"
+  sample_cases:
+    - component: "ConsensusManager"
+      case: "Quorum reached"
+      kind: "unit"
+algorithms:
+  swarm:
+    pso:
+      required_params: ["swarmSize", "inertia", "cognitiveCoeff", "socialCoeff", "maxIters"]
+      enhancements:
+        - "Adaptive inertia schedule"
+    aco:
+      required_params: ["antCount", "evaporationRate", "pheromoneInit", "alpha", "beta"]
+consensus:
+  algorithms:
+    - name: "raft"
+      metrics: ["election_time_ms", "commit_latency_ms"]
+    - name: "bft"
+      metrics: ["round_trip_ms", "fault_tolerance_ratio"]
+memory_bridge_spec:
+  interface:
+    methods:
+      - name: putMemory
+        input:
+          namespace: "string"
+          text: "string"
+          id: "optional|string"
+          metadata: "optional|object"
+        output:
+          id: "string"
+          vectorized: "boolean"
+        errors:
+          - "RETRYABLE"
+          - "NON_RETRYABLE"
+      - name: semanticQuery
+        input:
+          namespace: "string"
+          query: "string"
+          k: "optional|number"
+        output:
+          results: "array<MemoryHit>"
+telemetry:
+  events:
+    - name: agent.lifecycle
+      fields: [agentId, type, state_from, state_to, ts]
+    - name: swarm.iteration
+      fields: [swarmId, algo, iteration, convergenceScore, bestFitness, ts]
+  metrics:
+    gauges: [agent.active, mesh.node.count]
+    counters: [task.completed, task.failed, security.violations]
+    histograms: [consensus.decision_time_ms, swarm.convergence_iterations]
+security:
+  threats:
+    - id: T1
+      name: "Arbitrary task execution"
+      mitigation: ["Task allowlist", "Sandbox policy"]
+    - id: T2
+      name: "Resource exhaustion"
+      mitigation: ["Iteration caps", "CPU quota"]
+  policies:
+    validation:
+      task_command_max_length: 4096
+      topology_nodes_max: 256
+cli_validation:
+  exit_codes:
+    success: 0
+    invalid_args: 2
+    runtime_error: 10
+    policy_violation: 40
+docs_plan:
+  tree:
+    - architecture.md
+    - agents-and-mesh.md
+    - swarm-and-optimization.md
+    - consensus.md
+    - memory-and-bridge.md
+    - telemetry.md
+    - security.md
+    - testing.md
+    - release-process.md
+    - cli-reference.md
+release_rules:
+  semver:
+    major: ["breaking CLI", "memory schema change"]
+    minor: ["new algorithm", "additive command"]
+    patch: ["bug fix", "perf tweak"]
+  changelog_sections: ["Added", "Changed", "Fixed", "Security"]
+sprints:
+  - sprint: 1
+    goals: ["Boundaries mapped", "Memory bridge spec v1", "Telemetry schema draft"]
+    exit_criteria: ["Backlog B1..B5 accepted"]
+  - sprint: 2
+    goals: ["Bridge adapter prototype", "Initial telemetry emitters", "Threat model baseline"]
+    exit_criteria: ["Memory sync integration test passes"]
+  - sprint: 3
+    goals: ["Swarm param refinement", "Docs decomposition", "Release automation script"]
+    exit_criteria: ["Docs tree merged", "Semantic version gate active"]
+acceptance_criteria:
+  - "Backlog items enumerated with acceptance arrays"
+  - "Memory bridge methods align with interface spec"
+  - "≥5 security threats with mitigations"
+  - "Telemetry events + metrics mapped to focus areas"
+  - "Docs plan adopted under /docs"
+fallback_policy:
+  yaml_primary: true
+  json_fallback: true
+  unsupported_endpoint_behavior: "Auto-convert YAML → canonical JSON preserving key order"
+  conversion_notes:
+    - "Anchors/aliases must be expanded before JSON conversion"
+    - "Numeric precision preserved"
+segmentation_guidelines:
+  threshold_tokens: 12000
+  segmentation_format: "SEGMENT n/total"  # Format: SEGMENT 1/3, SEGMENT 2/3, etc.
+  index_block: true
