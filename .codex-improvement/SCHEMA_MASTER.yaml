@@ -2,15 +2,15 @@ version: 1
 meta:
   issue_id: "SELF_IMPROVEMENT_INIT"
   spec_version: "1.0.0"
-  generated_at: "<ISO8601>"
+  generated_at: "2025-09-27T20:00:00Z"  # Replace with actual ISO8601 timestamp
   segmentation:
     allowed: true
     part: 1            # If segmented
     total_parts: 1     # Update if >1
 assumptions:
-  - "<string>"
+  - "YAML-first output provides better structural adherence for LLM-generated content"  # Replace with actual assumptions
 summary:
-  problem: "<≤250 word narrative>"
+  problem: "Complete self-improvement implementation for codex-synaptic system"  # Replace with actual problem description (≤250 words)
   objectives_ordered:
     - id: OBJ1
       title: "Architecture Modularization"
@@ -34,16 +34,16 @@ summary:
       title: "Python Alignment"
 gap_analysis:
   - focus: "Architecture"
-    current: "<text>"
-    target: "<text>"
+    current: "Monolithic CodexSynapticSystem handling all orchestration"  # Replace with actual current state
+    target: "Modular architecture with clear boundaries"  # Replace with actual target state
   - focus: "Swarm/Consensus"
-    current: "<text>"
-    target: "<text>"
+    current: "Basic PSO implementation with simple consensus"  # Replace with actual current state
+    target: "Enhanced algorithms with adaptive parameters"  # Replace with actual target state
 backlog:
   items:
     - id: B1
       title: "Define module boundary map"
-      rationale: "<text>"
+      rationale: "Establish clear architectural boundaries for modular design"  # Replace with actual rationale
       effort: M        # S|M|L
       risk: L          # L|M|H
       depends: []
@@ -51,7 +51,7 @@ backlog:
         - "Map enumerates core, mesh, swarm, consensus, memory, telemetry, security layers"
     - id: B2
       title: "Memory bridge v1 spec"
-      rationale: "<text>"
+      rationale: "Define interface contract for TS↔Python integration"  # Replace with actual rationale
       effort: M
       risk: M
       depends: [B1]
@@ -199,5 +199,5 @@ fallback_policy:
     - "Numeric precision preserved"
 segmentation_guidelines:
   threshold_tokens: 12000
-  segmentation_format: "SEGMENT <n>/<total>"
+  segmentation_format: "SEGMENT n/total"  # Format: SEGMENT 1/3, SEGMENT 2/3, etc.
   index_block: true

@@ -34,6 +34,9 @@ vitest-junit.xml
 .codex-synaptic/memory.db
 .codex-synaptic/instructions.db
 
+# Memory routing files (generated data)
+memory/routing/*.json
+
 # Temporary improvement artifacts (keep structure)
 .codex-improvement/temp/
 .codex-context/temp/

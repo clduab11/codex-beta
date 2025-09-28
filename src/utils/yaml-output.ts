@@ -190,6 +190,48 @@ export class YamlSchemaUtils {
   }
 
   /**
+   * Validate and replace schema placeholders
+   */
+  static validateAndReplacePlaceholders(data: any, context: string = 'root'): any {
+    if (typeof data === 'string') {
+      // Check for placeholder patterns like <ISO8601>, <text>, etc.
+      const placeholderMatch = data.match(/^<(.+)>$/);
+      if (placeholderMatch) {
+        const placeholderType = placeholderMatch[1];
+        console.warn(`Warning: Placeholder '${data}' found at ${context}. This should be replaced with actual content.`);
+        
+        // Provide reasonable defaults for common placeholders
+        switch (placeholderType) {
+          case 'ISO8601':
+            return new Date().toISOString();
+          case 'string':
+            return `[PLACEHOLDER: ${context}]`;
+          case 'text':
+            return `[PLACEHOLDER: Replace with actual text for ${context}]`;
+          default:
+            if (placeholderType.includes('≤') && placeholderType.includes('word')) {
+              return `[PLACEHOLDER: ${placeholderType} - Replace with actual content]`;
+            }
+            return data; // Keep original if we don't have a specific handler
+        }
+      }
+      return data;
+    } else if (Array.isArray(data)) {
+      return data.map((item, index) => 
+        this.validateAndReplacePlaceholders(item, `${context}[${index}]`)
+      );
+    } else if (typeof data === 'object' && data !== null) {
+      const result: any = {};
+      for (const [key, value] of Object.entries(data)) {
+        result[key] = this.validateAndReplacePlaceholders(value, `${context}.${key}`);
+      }
+      return result;
+    }
+    
+    return data;
+  }
+
+  /**
    * Generate a YAML document conforming to the master schema
    */
   static generateFromSchema(data: any): string {
@@ -220,10 +262,10 @@ export class YamlSchemaUtils {
   static async createImprovementPlan(overrides: Partial<any> = {}): Promise<string> {
     const masterSchema = await this.loadMasterSchema();
     
-    // Apply current timestamp
+    // Apply current timestamp and validate placeholders
     const now = new Date().toISOString();
     
-    const populatedPlan = {
+    let populatedPlan = {
       ...masterSchema,
       meta: {
         ...masterSchema.meta,
@@ -269,6 +311,9 @@ export class YamlSchemaUtils {
       ],
       ...overrides
     };
+
+    // Validate and replace any remaining placeholders
+    populatedPlan = this.validateAndReplacePlaceholders(populatedPlan, 'improvement_plan');
 
     return this.generateFromSchema(populatedPlan);
   }
