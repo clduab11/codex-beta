@@ -2,7 +2,7 @@
 
 ## Overview
 
-The telemetry system provides comprehensive observability for the codex-synaptic distributed agent orchestration platform. It captures events, metrics, and traces across all system components to enable monitoring, debugging, and performance optimization.
+The telemetry system provides comprehensive observability for the codex-synaptic distributed agent orchestration platform. It captures events, metrics, and traces across all system components to enable monitoring, debugging, and performance optimization with structured data collection and export capabilities.
 
 ## Architecture
 
@@ -52,6 +52,8 @@ data:
 
 **States:** `initializing`, `running`, `idle`, `busy`, `error`, `shutting_down`, `offline`
 
+**Description:** Agent state transitions and resource consumption tracking for performance monitoring and lifecycle management.
+
 ### Swarm Iteration Events
 
 **Event Type:** `swarm.iteration`
@@ -65,15 +67,12 @@ data:
   iteration: number       # Current iteration number
   convergence_score: number # Convergence metric (0.0-1.0)
   best_fitness: number    # Best fitness value found
-  particle_count: number  # Active particle/agent count
-  objectives: array       # Optimization objectives
-  parameters:             # Algorithm-specific parameters
-    inertia: number
-    cognitive_coeff: number
-    social_coeff: number
+  parameters: object      # Algorithm-specific parameters
 ```
 
-### Consensus Events
+**Description:** Swarm optimization progress and convergence metrics for algorithm performance analysis and tuning.
+
+### Consensus Proposal Events
 
 **Event Type:** `consensus.proposal`
 
@@ -82,22 +81,277 @@ event_type: "consensus.proposal"
 component: "consensus"
 data:
   proposal_id: string     # Proposal unique identifier
-  proposer_id: string     # Agent proposing the change
   proposal_type: string   # Type of proposal
-  description: string     # Human-readable description
-  votes_required: number  # Minimum votes needed
-  timeout_ms: number      # Proposal timeout
-  proposal_data: object   # Proposal-specific data
+  votes_for: number       # Votes in favor
+  votes_against: number   # Votes against
+  quorum_reached: boolean # Whether quorum was achieved
+  decision_time_ms: number # Time to reach decision
 ```
 
-**Event Type:** `consensus.vote`
+**Description:** Consensus decision tracking with voting results and timing metrics for governance analysis.
+
+### Memory Bridge Sync Events
+
+**Event Type:** `memory.bridge.sync`
 
 ```yaml
-event_type: "consensus.vote"
-component: "consensus"
+event_type: "memory.bridge.sync"
+component: "memory_bridge"
 data:
-  proposal_id: string     # Target proposal
-  voter_id: string        # Voting agent
+  namespace: string       # Memory namespace being synchronized
+  sync_strategy: string   # Reconciliation strategy used
+  conflicts_resolved: number # Number of conflicts resolved
+  sync_duration_ms: number # Synchronization time
+  status: string          # Success/failure status
+```
+
+**Description:** Memory bridge synchronization events and conflict resolution tracking for data consistency monitoring.
+
+### Mesh Topology Change Events
+
+**Event Type:** `mesh.topology.change`
+
+```yaml
+event_type: "mesh.topology.change"
+component: "neural_mesh"
+data:
+  node_id: string         # Node identifier
+  change_type: string     # Type of topology change
+  connections_added: number # New connections established
+  connections_removed: number # Connections terminated
+  topology_health: number # Overall mesh health score
+```
+
+**Description:** Neural mesh topology updates and connectivity changes for network health monitoring.
+
+### Security Policy Violation Events
+
+**Event Type:** `security.policy.violation`
+
+```yaml
+event_type: "security.policy.violation"
+component: "security"
+data:
+  agent_id: string        # Agent that violated policy
+  policy_type: string     # Type of policy violated
+  violation_details: string # Specific violation description
+  severity: string        # Violation severity level
+  action_taken: string    # Enforcement action applied
+```
+
+**Description:** Security policy violations and enforcement actions for threat detection and response.
+
+### Task Execution Events
+
+**Event Type:** `task.execution`
+
+```yaml
+event_type: "task.execution"
+component: "task_scheduler"
+data:
+  task_id: string         # Task unique identifier
+  agent_id: string        # Executing agent identifier
+  task_type: string       # Type of task
+  duration_ms: number     # Execution duration
+  success: boolean        # Execution success status
+  error_type: string      # Error type if failed
+  resource_usage: object  # Resource consumption during execution
+```
+
+**Description:** Task execution tracking with performance and error details for system optimization.
+
+## Metrics Schema
+
+### Gauge Metrics
+
+Distribution of current state measurements.
+
+#### System Health
+- **`agent.active`**: Number of currently active agents
+- **`mesh.node.count`**: Total nodes in neural mesh
+- **`memory.bridge.sync_lag_ms`**: Current synchronization lag between TS and Python stores
+- **`consensus.active_proposals`**: Number of consensus proposals awaiting decision
+
+### Counter Metrics
+
+Cumulative counts of events over time.
+
+#### Task Performance
+- **`task.completed`**: Total completed tasks with success/failure breakdown
+  - Labels: `agent_type`, `task_type`, `success`
+- **`task.failed`**: Failed task count by agent and error type
+  - Labels: `agent_type`, `error_type`
+
+#### Security
+- **`security.violations`**: Security policy violations by type and severity
+  - Labels: `policy_type`, `severity`
+
+#### Memory Operations
+- **`memory.bridge.operations`**: Memory bridge operations with success/failure tracking
+  - Labels: `operation_type`, `namespace`, `success`
+
+### Histogram Metrics
+
+Distribution of measured values over time.
+
+#### Performance
+- **`consensus.decision_time_ms`**: Time to reach consensus decisions
+  - Buckets: [10, 50, 100, 500, 1000, 5000, 10000]
+- **`swarm.convergence_iterations`**: Iterations required for convergence
+  - Buckets: [10, 25, 50, 100, 250, 500, 1000]
+- **`task.execution_time_ms`**: Task execution duration
+  - Buckets: [100, 500, 1000, 5000, 10000, 30000, 60000]
+- **`memory.bridge.query_latency_ms`**: Memory bridge query response time distribution
+  - Buckets: [1, 5, 10, 25, 50, 100, 250, 500]
+
+## Implementation Guidelines
+
+### Event Emission
+
+```typescript
+// TypeScript example
+import { TelemetryBus } from '../telemetry/bus.js';
+
+const telemetry = TelemetryBus.getInstance();
+
+telemetry.emitEvent('agent.lifecycle', {
+  agent_id: this.id,
+  agent_type: this.type,
+  state_from: 'idle',
+  state_to: 'running',
+  transition_reason: 'task_assigned',
+  resource_usage: {
+    cpu_percent: 15.5,
+    memory_mb: 128,
+    network_bytes: 1024
+  }
+});
+```
+
+### Metric Recording
+
+```typescript
+// TypeScript example
+import { Metrics } from '../telemetry/metrics.js';
+
+// Increment counter
+Metrics.counter('task.completed.total').increment({
+  agent_type: 'code_worker',
+  task_type: 'code_generation',
+  success: 'true'
+});
+
+// Record histogram value
+Metrics.histogram('task.execution_time_ms').record(1250, {
+  task_type: 'code_generation'
+});
+
+// Set gauge value
+Metrics.gauge('agent.active').set(12);
+```
+
+### Performance Considerations
+
+- **Sampling**: Use sampling for high-frequency events to reduce overhead
+- **Batching**: Batch metric updates to reduce I/O operations
+- **Async Emission**: Use asynchronous event emission to avoid blocking operations
+- **Buffer Management**: Configure appropriate buffer sizes for event queues
+
+### Data Retention
+
+```yaml
+retention:
+  events:
+    high_frequency: 7_days    # Agent lifecycle, task execution
+    medium_frequency: 30_days # Swarm iterations, mesh changes
+    low_frequency: 90_days    # Consensus decisions, security events
+  metrics:
+    raw_data: 15_days
+    aggregated_5m: 30_days
+    aggregated_1h: 365_days
+    aggregated_1d: 1825_days  # 5 years
+```
+
+### Export Configuration
+
+#### Prometheus Export
+```yaml
+prometheus:
+  endpoint: "/metrics"
+  port: 9090
+  scrape_interval: 15s
+  metric_prefix: "codex_synaptic_"
+```
+
+#### Jaeger Tracing
+```yaml
+jaeger:
+  agent_host: "localhost"
+  agent_port: 6832
+  service_name: "codex-synaptic"
+  sampling_rate: 0.1
+```
+
+#### Custom Exporters
+```yaml
+custom_exporters:
+  - name: "elasticsearch"
+    type: "events"
+    config:
+      endpoint: "https://elasticsearch.example.com"
+      index_pattern: "codex-synaptic-{date}"
+  - name: "influxdb"
+    type: "metrics"
+    config:
+      endpoint: "https://influxdb.example.com"
+      database: "codex_metrics"
+```
+
+## Monitoring Dashboards
+
+### System Overview Dashboard
+- Agent status and distribution
+- System resource utilization
+- Task execution rates and success ratios
+- Network topology health
+
+### Performance Dashboard
+- Swarm convergence trends
+- Consensus decision latency
+- Memory bridge performance
+- Task execution time distributions
+
+### Security Dashboard
+- Policy violation trends
+- Threat detection alerts
+- Security metric anomalies
+- Incident response status
+
+### Operational Dashboard
+- System uptime and availability
+- Error rates and patterns
+- Resource capacity planning
+- Deployment and rollback tracking
+
+## Alerting Rules
+
+### Critical Alerts (Immediate Response)
+- System down or unreachable
+- Security breach detected
+- Data corruption events
+- Resource exhaustion (>95% utilization)
+
+### Warning Alerts (15-minute response)
+- High error rates (>5%)
+- Performance degradation (>2x baseline)
+- Consensus delays (>10s average)
+- Memory bridge sync failures
+
+### Info Alerts (Daily digest)
+- Capacity planning thresholds
+- Performance trends
+- Security audit results
+- System health reports
   vote: boolean          # true = approve, false = reject
   reasoning: string       # Vote justification
   vote_weight: number     # Vote influence (default: 1.0)

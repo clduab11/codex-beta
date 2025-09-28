@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document outlines the comprehensive testing strategy for the codex-synaptic distributed AI agent orchestration platform, ensuring reliability, performance, and security across all system components.
+This document outlines the comprehensive testing strategy for the codex-synaptic distributed AI agent orchestration platform, ensuring reliability, performance, and security across all system components through multi-layer testing approach and continuous quality assurance.
 
 ## Testing Philosophy
 
@@ -11,6 +11,7 @@ This document outlines the comprehensive testing strategy for the codex-synaptic
 - **Fail fast**: Tests should identify issues as early as possible
 - **Test pyramid**: More unit tests, fewer integration tests, minimal E2E tests
 - **Shift left**: Testing integrated into development workflow
+- **Continuous testing**: Automated testing in CI/CD pipeline
 
 ### Coverage Goals
 - **Statements**: 75% minimum coverage
@@ -22,32 +23,453 @@ This document outlines the comprehensive testing strategy for the codex-synaptic
 
 ### Unit Testing
 
-**Framework**: Vitest (already configured)
-**Scope**: Individual functions, classes, and modules
+**Framework**: Vitest (already configured)  
+**Scope**: Individual functions, classes, and modules  
 **Execution**: Fast (<100ms per test), isolated, deterministic
 
 #### Target Components
 - Agent implementations and capabilities
-- Consensus algorithms (RAFT, Byzantine)
-- Swarm optimization algorithms (PSO, ACO)
+- Consensus algorithms (RAFT, Byzantine, PoW, PoS)
+- Swarm optimization algorithms (PSO, ACO, flocking)
 - Neural mesh routing logic
 - Memory bridge interface methods
-- Utility functions and helpers
+- Security policy enforcement
+- Telemetry event generation
+- YAML schema validation
 
 #### Test Structure Example
 ```typescript
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { ValidationWorker } from '../src/agents/validation_worker.js';
+import { ConsensusManager } from '../src/consensus/manager.js';
 
-describe('ValidationWorker', () => {
-  let worker: ValidationWorker;
+describe('ConsensusManager', () => {
+  let manager: ConsensusManager;
+  let mockAgents: MockAgent[];
 
   beforeEach(() => {
-    worker = new ValidationWorker();
+    mockAgents = createMockAgents(5);
+    manager = new ConsensusManager({
+      algorithm: 'bft',
+      faultTolerance: 0.33,
+      timeout: 30000
+    });
   });
 
   afterEach(() => {
-    worker.shutdown();
+    manager.shutdown();
+  });
+
+  it('should reach consensus with majority votes', async () => {
+    const proposal = createTestProposal();
+    const result = await manager.propose(proposal);
+    
+    expect(result.decided).toBe(true);
+    expect(result.votes.for).toBeGreaterThan(result.votes.against);
+  });
+
+  it('should handle Byzantine failures gracefully', async () => {
+    // Simulate Byzantine agents
+    mockAgents.slice(0, 2).forEach(agent => agent.setByzantine(true));
+    
+    const proposal = createTestProposal();
+    const result = await manager.propose(proposal);
+    
+    expect(result.decided).toBe(true); // Should still reach consensus
+  });
+});
+```
+
+### Integration Testing
+
+**Environment**: Ephemeral SQLite databases and in-memory services  
+**Scope**: Module interactions and data flow  
+**Focus**: Component integration, API contracts, data consistency
+
+#### Target Scenarios
+- Agent coordination workflows
+- Memory bridge synchronization
+- Swarm optimization with real algorithms
+- Consensus decision making across multiple agents
+- Neural mesh topology changes
+- Telemetry data flow and aggregation
+
+#### Integration Test Example
+```typescript
+describe('Memory Bridge Integration', () => {
+  let bridge: MemoryBridge;
+  let sqliteStore: SQLiteStore;
+  let chromaStore: MockChromaStore;
+
+  beforeEach(async () => {
+    sqliteStore = new SQLiteStore(':memory:');
+    chromaStore = new MockChromaStore();
+    bridge = new MemoryBridge(sqliteStore, chromaStore);
+    await bridge.initialize();
+  });
+
+  it('should synchronize memory between stores', async () => {
+    const memory = {
+      namespace: 'test',
+      text: 'Integration test memory',
+      metadata: { source: 'test' }
+    };
+
+    const result = await bridge.putMemory(memory);
+    expect(result.vectorized).toBe(true);
+
+    // Verify synchronization
+    const sqliteEntry = await sqliteStore.getById(result.id);
+    const chromaEntry = await chromaStore.getById(result.id);
+    
+    expect(sqliteEntry.text).toBe(memory.text);
+    expect(chromaEntry.embedding).toBeDefined();
+  });
+
+  it('should handle reconciliation conflicts', async () => {
+    // Create conflicting entries
+    await sqliteStore.put({ id: 'conflict', text: 'TS version' });
+    await chromaStore.put({ id: 'conflict', text: 'Python version' });
+
+    const actions = await bridge.reconcile('test', 'merge');
+    expect(actions).toHaveLength(1);
+    expect(actions[0].action).toBe('update');
+  });
+});
+```
+
+### Scenario Testing
+
+**Focus**: Complex workflows and edge cases  
+**Environment**: Full system simulation with multiple agents  
+**Examples**: Mesh reconfiguration, consensus quorum variance, resource exhaustion
+
+#### Critical Scenarios
+
+##### Mesh Reconfiguration Under Load
+```typescript
+describe('Mesh Reconfiguration Scenarios', () => {
+  it('should maintain connectivity during node failures', async () => {
+    const system = await createTestSystem({ nodeCount: 10 });
+    
+    // Start background load
+    const loadGenerator = new LoadGenerator(system);
+    await loadGenerator.start();
+
+    // Simulate node failures
+    await system.removeNodes([1, 3, 7]);
+    
+    // Verify mesh remains connected
+    const topology = await system.getMeshTopology();
+    expect(topology.isConnected()).toBe(true);
+    expect(topology.averagePathLength()).toBeLessThan(4);
+    
+    await loadGenerator.stop();
+  });
+});
+```
+
+##### Consensus Quorum Variance
+```typescript
+describe('Consensus Quorum Scenarios', () => {
+  it('should handle varying quorum sizes', async () => {
+    const scenarios = [
+      { agents: 3, expectedQuorum: 2 },
+      { agents: 5, expectedQuorum: 3 },
+      { agents: 7, expectedQuorum: 4 },
+      { agents: 10, expectedQuorum: 6 }
+    ];
+
+    for (const scenario of scenarios) {
+      const system = await createConsensusSystem(scenario.agents);
+      const result = await system.proposeChange('test_proposal');
+      
+      expect(result.quorumSize).toBe(scenario.expectedQuorum);
+      expect(result.decided).toBe(true);
+    }
+  });
+});
+```
+
+### Performance Testing
+
+**Tools**: Custom benchmarking harness with Vitest  
+**Metrics**: Latency, throughput, resource utilization  
+**Baselines**: Establish performance baselines for key operations
+
+#### Performance Benchmarks
+```typescript
+describe('Performance Benchmarks', () => {
+  it('should complete swarm convergence within time limits', async () => {
+    const swarm = new PSO_Swarm({
+      size: 50,
+      maxIterations: 1000,
+      objectives: ['minimize_latency']
+    });
+
+    const startTime = performance.now();
+    const result = await swarm.optimize();
+    const duration = performance.now() - startTime;
+
+    expect(result.converged).toBe(true);
+    expect(duration).toBeLessThan(10000); // 10 seconds max
+    expect(result.iterations).toBeLessThan(500);
+  });
+
+  it('should handle high-frequency telemetry events', async () => {
+    const telemetry = new TelemetryBus();
+    const eventCount = 10000;
+    const events = generateTestEvents(eventCount);
+
+    const startTime = performance.now();
+    
+    for (const event of events) {
+      telemetry.emit(event);
+    }
+    
+    await telemetry.flush();
+    const duration = performance.now() - startTime;
+    
+    expect(duration).toBeLessThan(5000); // 5 seconds for 10k events
+    expect(telemetry.getBufferSize()).toBe(0);
+  });
+});
+```
+
+### Security Testing
+
+**Focus**: Vulnerability detection, policy enforcement, attack simulation  
+**Tools**: Custom security test framework  
+**Coverage**: All security threats identified in threat model
+
+#### Security Test Examples
+```typescript
+describe('Security Policy Enforcement', () => {
+  it('should block arbitrary command execution', async () => {
+    const agent = new CodeWorker();
+    const maliciousTask = {
+      type: 'execute',
+      command: 'rm -rf /',
+      params: {}
+    };
+
+    await expect(agent.executeTask(maliciousTask))
+      .rejects.toThrow('POLICY_VIOLATION');
+    
+    const violations = await getSecurityViolations();
+    expect(violations).toHaveLength(1);
+    expect(violations[0].type).toBe('arbitrary_execution');
+  });
+
+  it('should enforce resource limits', async () => {
+    const agent = new CodeWorker({
+      maxMemoryMB: 256,
+      maxCpuPercent: 25
+    });
+
+    const resourceHungryTask = {
+      type: 'memory_bomb',
+      size: 512 * 1024 * 1024 // 512MB
+    };
+
+    await expect(agent.executeTask(resourceHungryTask))
+      .rejects.toThrow('RESOURCE_LIMIT_EXCEEDED');
+  });
+});
+```
+
+### Regression Testing
+
+**Trigger**: Release candidate tags and major merges  
+**Scope**: Critical path validation and backward compatibility  
+**Automation**: Fully automated in CI/CD pipeline
+
+#### Regression Test Suite
+- CLI command compatibility tests
+- API endpoint stability tests
+- Data format migration tests
+- Performance regression detection
+- Security policy regression tests
+
+### End-to-End Testing
+
+**Scope**: Complete user journeys and system workflows  
+**Environment**: Production-like environment with real dependencies  
+**Frequency**: Nightly and pre-release
+
+#### E2E Test Scenarios
+```typescript
+describe('End-to-End Workflows', () => {
+  it('should complete full hive-mind task execution', async () => {
+    const cli = new CLITestHarness();
+    
+    const result = await cli.execute([
+      'hive-mind',
+      'Implement a binary search algorithm in TypeScript',
+      '--algorithm', 'pso',
+      '--max-agents', '5',
+      '--timeout', '300'
+    ]);
+
+    expect(result.exitCode).toBe(0);
+    expect(result.output).toContain('Task completed successfully');
+    expect(result.artifacts).toHaveProperty('code');
+    expect(result.performance.duration).toBeLessThan(300000);
+  });
+});
+```
+
+## Test Infrastructure
+
+### Test Utilities
+
+#### Mock Factories
+```typescript
+export class TestFactory {
+  static createMockAgent(type: AgentType, config?: Partial<AgentConfig>): MockAgent {
+    return new MockAgent({ type, ...config });
+  }
+
+  static createTestSystem(config: SystemConfig): Promise<TestSystem> {
+    return TestSystem.create(config);
+  }
+
+  static generateTestData(schema: string, count: number): any[] {
+    return TestDataGenerator.generate(schema, count);
+  }
+}
+```
+
+#### Test Environment Management
+```typescript
+export class TestEnvironment {
+  private static instances = new Map<string, TestEnvironment>();
+
+  static async create(name: string): Promise<TestEnvironment> {
+    const env = new TestEnvironment(name);
+    await env.initialize();
+    this.instances.set(name, env);
+    return env;
+  }
+
+  static async cleanup(name: string): Promise<void> {
+    const env = this.instances.get(name);
+    if (env) {
+      await env.destroy();
+      this.instances.delete(name);
+    }
+  }
+}
+```
+
+### Continuous Integration
+
+#### Test Pipeline Configuration
+```yaml
+test_pipeline:
+  stages:
+    - unit_tests:
+        parallel: 4
+        timeout: 300s
+        coverage_threshold: 75%
+    
+    - integration_tests:
+        parallel: 2
+        timeout: 600s
+        requires: [unit_tests]
+    
+    - performance_tests:
+        timeout: 1200s
+        requires: [integration_tests]
+        baseline_comparison: true
+    
+    - security_tests:
+        timeout: 900s
+        requires: [integration_tests]
+        vulnerability_scan: true
+    
+    - e2e_tests:
+        timeout: 1800s
+        requires: [performance_tests, security_tests]
+        environment: staging
+```
+
+### Test Data Management
+
+#### Test Data Generation
+```typescript
+export class TestDataGenerator {
+  static generateMemoryEntries(count: number): MemoryEntry[] {
+    return Array.from({ length: count }, (_, i) => ({
+      id: `test-memory-${i}`,
+      namespace: 'test',
+      text: `Test memory content ${i}`,
+      metadata: { index: i },
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      vectorized: true
+    }));
+  }
+
+  static generateConsensusProposals(count: number): Proposal[] {
+    return Array.from({ length: count }, (_, i) => ({
+      id: `proposal-${i}`,
+      type: 'system_update',
+      description: `Test proposal ${i}`,
+      data: { value: i },
+      timeout: 30000
+    }));
+  }
+}
+```
+
+## Quality Metrics
+
+### Test Metrics
+- **Test execution time**: Track test performance over time
+- **Test flakiness**: Identify and fix unreliable tests
+- **Coverage trends**: Monitor coverage improvements
+- **Bug escape rate**: Tests that missed production bugs
+
+### Quality Gates
+- All tests must pass before merge
+- Coverage thresholds must be met
+- Performance baselines must not regress
+- Security tests must pass
+- No critical vulnerabilities
+
+### Reporting
+- Daily test execution reports
+- Weekly coverage and quality trends
+- Monthly performance baseline reviews
+- Quarterly test strategy reviews
+
+## Testing Best Practices
+
+### Test Design Principles
+1. **Arrange-Act-Assert**: Clear test structure
+2. **Single responsibility**: One assertion per test
+3. **Deterministic**: Same input produces same output
+4. **Fast feedback**: Quick test execution
+5. **Independent**: Tests don't depend on each other
+
+### Mock and Stub Guidelines
+- Mock external dependencies
+- Use stubs for complex internal dependencies
+- Avoid over-mocking (test behavior, not implementation)
+- Verify mock interactions when relevant
+
+### Test Maintenance
+- Regular test review and cleanup
+- Update tests when requirements change
+- Remove obsolete tests
+- Refactor test code for maintainability
+
+### Performance Testing Guidelines
+- Establish realistic baselines
+- Test under various load conditions
+- Monitor resource utilization
+- Compare results over time
+- Use production-like data volumes
   });
 
   it('should validate code according to configured rules', async () => {

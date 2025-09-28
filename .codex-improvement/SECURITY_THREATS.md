@@ -1,8 +1,8 @@
-# Security Threat Model & Mitigations
+# Security Threat Model & Mitigations v1.0
 
 ## Overview
 
-This document outlines the comprehensive security threat model for the codex-synaptic distributed AI agent orchestration platform, identifying potential attack vectors, vulnerabilities, and corresponding mitigation strategies.
+This document outlines the comprehensive security threat model for the codex-synaptic distributed AI agent orchestration platform, identifying potential attack vectors, vulnerabilities, and corresponding mitigation strategies to ensure system integrity and data protection.
 
 ## Threat Classification Framework
 
@@ -18,27 +18,29 @@ This document outlines the comprehensive security threat model for the codex-syn
 3. **Consensus Mechanisms**
 4. **Memory Bridge Interface**
 5. **External Bridge Communications**
-6. **CLI and API Endpoints**
+6. **Telemetry and Monitoring Systems**
 
 ## Identified Threats
 
 ### T1: Arbitrary Task Execution
-**Risk Level:** CRITICAL
-**Attack Vector:** Malicious code injection through task system
-**Impact:** Complete system compromise, data exfiltration, lateral movement
+**Risk Level:** HIGH  
+**Attack Vector:** Malicious agents executing unauthorized system commands  
+**Impact:** System compromise, data exfiltration, resource abuse
 
 **Attack Scenarios:**
 - Injection of malicious JavaScript/TypeScript code through task payloads
 - Exploitation of agent execution contexts for privilege escalation
 - Code injection through poorly validated user inputs
+- Shell command injection through task parameters
 
 **Mitigations:**
-- **Task Allowlist**: Whitelist approved task types and operations
-- **Sandbox Policy**: Isolate agent execution environments using containers/chroot
-- **Input Validation**: Strict schema validation for all task inputs
-- **Code Analysis**: Static analysis of task code before execution
-- **Resource Limits**: CPU, memory, and I/O constraints per task
-- **Execution Timeout**: Kill long-running tasks automatically
+- **Task allowlist with predefined safe operations**
+- **Sandbox policy enforcement for all agent execution**
+- **Code injection detection and prevention**
+
+**Validation Rules:**
+- `task_command_max_length: 4096`
+- `allowed_commands: [read, write, compute, query]`
 
 **Implementation:**
 ```yaml
@@ -46,8 +48,252 @@ security:
   task_execution:
     allowlist_enabled: true
     sandbox_mode: "strict"
-    max_execution_time_ms: 300000
-    resource_limits:
+    max_command_length: 4096
+    allowed_operations: ["read", "write", "compute", "query"]
+    code_injection_scanner: true
+```
+
+### T2: Resource Exhaustion
+**Risk Level:** MEDIUM  
+**Attack Vector:** Agents consuming excessive CPU, memory, or network resources  
+**Impact:** Service degradation, system instability, denial of service
+
+**Attack Scenarios:**
+- Memory bombs through excessive data structures
+- CPU exhaustion via infinite loops or expensive computations
+- Network flooding through rapid API calls
+- Disk space consumption through large log files
+
+**Mitigations:**
+- **Per-agent resource quotas with enforcement**
+- **Iteration caps for optimization algorithms**
+- **Memory usage monitoring and cleanup**
+
+**Validation Rules:**
+- `max_agent_memory_mb: 512`
+- `max_swarm_iterations: 1000`
+- `cpu_quota_percent: 25`
+
+**Implementation:**
+```yaml
+security:
+  resource_limits:
+    max_memory_mb: 512
+    max_cpu_percent: 25
+    max_iterations: 1000
+    disk_quota_mb: 1024
+    network_rate_limit_rps: 100
+```
+
+### T3: Memory Bridge Data Corruption
+**Risk Level:** HIGH  
+**Attack Vector:** Inconsistent data between TypeScript SQLite and Python ChromaDB  
+**Impact:** Data integrity loss, system inconsistency, memory poisoning
+
+**Attack Scenarios:**
+- Race conditions during concurrent read/write operations
+- Network interruptions causing partial sync failures
+- Malicious modification of embedded vectors
+- SQLite corruption through improper transaction handling
+
+**Mitigations:**
+- **Checksum validation for all memory operations**
+- **Atomic transaction support with rollback capability**
+- **Regular consistency verification and auto-healing**
+
+**Validation Rules:**
+- `checksum_algorithm: sha256`
+- `consistency_check_interval_ms: 300000`
+- `max_divergence_threshold: 100`
+
+**Implementation:**
+```yaml
+security:
+  memory_bridge:
+    checksum_validation: true
+    atomic_transactions: true
+    consistency_check_interval: 300000
+    auto_healing: true
+    backup_retention_days: 7
+```
+
+### T4: Consensus Manipulation
+**Risk Level:** HIGH  
+**Attack Vector:** Malicious agents manipulating voting or proposal processes  
+**Impact:** System governance compromise, invalid decisions, Byzantine attacks
+
+**Attack Scenarios:**
+- Sybil attacks through fake agent registration
+- Vote buying or coercion of legitimate agents
+- Proposal spam to overwhelm consensus mechanism
+- Timing attacks to manipulate election outcomes
+
+**Mitigations:**
+- **Byzantine fault tolerance with configurable fault ratio**
+- **Agent identity verification with certificate-based auth**
+- **Proposal validation and sanitization**
+
+**Validation Rules:**
+- `max_byzantine_fault_ratio: 0.33`
+- `proposal_signature_required: true`
+- `voting_timeout_ms: 30000`
+
+**Implementation:**
+```yaml
+security:
+  consensus:
+    bft_enabled: true
+    max_fault_ratio: 0.33
+    certificate_auth: true
+    proposal_validation: true
+    vote_verification: true
+    election_timeout_ms: 30000
+```
+
+### T5: Neural Mesh Topology Attacks
+**Risk Level:** MEDIUM  
+**Attack Vector:** Adversarial modification of mesh connections to isolate nodes  
+**Impact:** Network partitioning, communication disruption, reduced system effectiveness
+
+**Attack Scenarios:**
+- Targeted disconnection of critical nodes
+- Creation of network islands through strategic link removal
+- Flooding attacks to overwhelm mesh routing
+- Man-in-the-middle attacks on mesh communications
+
+**Mitigations:**
+- **Topology change authorization with consensus approval**
+- **Connection health monitoring and automatic recovery**
+- **Mesh topology validation against known good states**
+
+**Validation Rules:**
+- `topology_nodes_max: 256`
+- `min_node_connections: 2`
+- `topology_change_quorum: 0.51`
+
+**Implementation:**
+```yaml
+security:
+  neural_mesh:
+    topology_validation: true
+    connection_monitoring: true
+    auto_recovery: true
+    max_nodes: 256
+    min_connections: 2
+    change_quorum: 0.51
+```
+
+### T6: Telemetry Data Exfiltration
+**Risk Level:** MEDIUM  
+**Attack Vector:** Unauthorized access to sensitive system metrics and events  
+**Impact:** Information disclosure, privacy violation, operational intelligence exposure
+
+**Attack Scenarios:**
+- Unauthorized access to telemetry endpoints
+- Data interception during transmission
+- Log file exposure through misconfigured access controls
+- Aggregated data analysis revealing system patterns
+
+**Mitigations:**
+- **Telemetry data encryption in transit and at rest**
+- **Access control for telemetry endpoints**
+- **Sensitive data sanitization in telemetry output**
+
+**Validation Rules:**
+- `telemetry_encryption: aes-256-gcm`
+- `telemetry_retention_days: 30`
+- `pii_scrubbing_enabled: true`
+
+**Implementation:**
+```yaml
+security:
+  telemetry:
+    encryption_enabled: true
+    encryption_algorithm: "aes-256-gcm"
+    access_control: true
+    data_sanitization: true
+    retention_days: 30
+    pii_scrubbing: true
+```
+
+## Security Policies
+
+### Validation Policies
+```yaml
+validation:
+  task_command_max_length: 4096
+  topology_nodes_max: 256
+  max_agent_memory_mb: 512
+  max_consensus_proposals: 10
+  telemetry_retention_days: 30
+```
+
+### Enforcement Policies
+```yaml
+enforcement:
+  policy_violation_action: "quarantine"
+  escalation_threshold: 3
+  auto_remediation_enabled: true
+  incident_response_team: "security@codex-synaptic.io"
+  audit_logging: true
+```
+
+## Monitoring and Detection
+
+### Security Metrics
+- Policy violation events per hour
+- Failed authentication attempts
+- Resource usage anomalies
+- Consensus decision patterns
+- Network topology changes
+
+### Alerting Thresholds
+- Critical: Immediate notification (0-5 minutes)
+- High: Urgent notification (5-15 minutes)
+- Medium: Standard notification (15-60 minutes)
+- Low: Daily digest notification
+
+## Incident Response
+
+### Response Levels
+1. **Level 1**: Automated remediation
+2. **Level 2**: Security team investigation
+3. **Level 3**: Full incident response team activation
+4. **Level 4**: External security consultant engagement
+
+### Recovery Procedures
+1. Immediate threat containment
+2. System state preservation for forensics
+3. Service restoration with security patches
+4. Post-incident review and policy updates
+
+## Compliance and Auditing
+
+### Audit Requirements
+- Monthly security assessment reports
+- Quarterly penetration testing
+- Annual third-party security audits
+- Continuous compliance monitoring
+
+### Documentation
+- Security incident logs
+- Policy exception approvals
+- Access control changes
+- Security training records
+
+## Security Governance
+
+### Roles and Responsibilities
+- **Security Officer**: Overall security program ownership
+- **Development Team**: Secure coding practices
+- **Operations Team**: Security monitoring and response
+- **Compliance Team**: Regulatory requirement adherence
+
+### Security Review Process
+1. Design phase security review
+2. Code security scanning
+3. Deployment security validation
+4. Post-deployment security monitoring
       cpu_percent: 25
       memory_mb: 512
       disk_io_mb: 100
