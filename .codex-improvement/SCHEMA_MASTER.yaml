@@ -2,15 +2,21 @@ version: 1
 meta:
   issue_id: "SELF_IMPROVEMENT_INIT"
   spec_version: "1.0.0"
-  generated_at: "2025-09-27T20:00:00Z"  # Replace with actual ISO8601 timestamp
+  generated_at: "2025-01-28T00:00:00Z"
   segmentation:
     allowed: true
-    part: 1            # If segmented
-    total_parts: 1     # Update if >1
+    part: 1
+    total_parts: 1
 assumptions:
-  - "YAML-first output provides better structural adherence for LLM-generated content"  # Replace with actual assumptions
+  - "YAML-first output provides better structural adherence for LLM-generated content"
+  - "Modular architecture will improve maintainability and reduce coupling"
+  - "TypeScript↔Python bridge enables hybrid system capabilities"
+  - "Consensus mechanisms ensure system reliability and fault tolerance"
+  - "Comprehensive telemetry enables effective monitoring and debugging"
+  - "Security governance prevents unauthorized system modifications"
+  - "Incremental delivery maintains CLI compatibility during evolution"
 summary:
-  problem: "Complete self-improvement implementation for codex-synaptic system"  # Replace with actual problem description (≤250 words)
+  problem: "Implement a structured self-improvement program for codex-synaptic using YAML-first semantic output to guide agentic orchestration, focusing on modular architecture, enhanced swarm/consensus capabilities, TypeScript↔Python memory bridging, comprehensive testing, telemetry, security governance, and release automation while preserving existing CLI flows."
   objectives_ordered:
     - id: OBJ1
       title: "Architecture Modularization"
@@ -34,29 +40,142 @@ summary:
       title: "Python Alignment"
 gap_analysis:
   - focus: "Architecture"
-    current: "Monolithic CodexSynapticSystem handling all orchestration"  # Replace with actual current state
-    target: "Modular architecture with clear boundaries"  # Replace with actual target state
+    current: "Monolithic CodexSynapticSystem handling all orchestration, mesh, swarm, and consensus functionality"
+    target: "Modular architecture with clear boundaries: core.orchestrator, mesh.topology, swarm.engine, consensus.manager, memory.bridge, telemetry.bus, security.guard"
   - focus: "Swarm/Consensus"
-    current: "Basic PSO implementation with simple consensus"  # Replace with actual current state
-    target: "Enhanced algorithms with adaptive parameters"  # Replace with actual target state
+    current: "Basic PSO implementation with simple consensus mechanisms"
+    target: "Enhanced algorithms with adaptive parameters, multiple optimization strategies, and robust Byzantine fault tolerance"
+  - focus: "Memory Bridge"
+    current: "Separate TypeScript SQLite and Python ChromaDB systems without integration"
+    target: "Unified memory bridge with bi-directional sync, semantic queries, and conflict resolution"
+  - focus: "Testing"
+    current: "Basic unit tests with 63 passing tests, limited integration coverage"
+    target: "Comprehensive test strategy with >75% coverage, integration tests, performance tests, and security validation"
+  - focus: "Telemetry"
+    current: "Limited logging and basic health monitoring"
+    target: "Structured telemetry with events, metrics, dashboards, and alerting for comprehensive observability"
 backlog:
   items:
     - id: B1
       title: "Define module boundary map"
-      rationale: "Establish clear architectural boundaries for modular design"  # Replace with actual rationale
-      effort: M        # S|M|L
-      risk: L          # L|M|H
+      rationale: "Establish clear architectural boundaries for modular design to reduce coupling and improve maintainability"
+      effort: M
+      risk: L
       depends: []
       acceptance:
         - "Map enumerates core, mesh, swarm, consensus, memory, telemetry, security layers"
+        - "Interface contracts defined between modules"
+        - "Migration path documented with minimal breaking changes"
     - id: B2
       title: "Memory bridge v1 spec"
-      rationale: "Define interface contract for TS↔Python integration"  # Replace with actual rationale
+      rationale: "Define interface contract for TS↔Python integration enabling hybrid capabilities"
       effort: M
       risk: M
       depends: [B1]
       acceptance:
         - "YAML interface contract stored at .codex-improvement/MEMORY_BRIDGE_SPEC.md"
+        - "Reconciliation strategies documented (ts-wins, py-wins, merge)"
+        - "Error handling and retry policies specified"
+    - id: B3
+      title: "Telemetry event schema design"
+      rationale: "Comprehensive observability requires structured event and metric definitions"
+      effort: S
+      risk: L
+      depends: [B1]
+      acceptance:
+        - "Agent lifecycle events fully specified"
+        - "Swarm iteration and consensus metrics defined"
+        - "Performance and resource utilization tracking enabled"
+    - id: B4
+      title: "Security threat model baseline"
+      rationale: "Identify and mitigate security risks in distributed agent system"
+      effort: M
+      risk: H
+      depends: []
+      acceptance:
+        - "Minimum 5 security threats documented with mitigations"
+        - "Input validation policies defined"
+        - "Resource exhaustion protections implemented"
+    - id: B5
+      title: "Testing strategy implementation"
+      rationale: "Achieve >75% coverage with comprehensive test layers"
+      effort: L
+      risk: M
+      depends: [B1, B2]
+      acceptance:
+        - "Unit test framework enhanced for modular architecture"
+        - "Integration tests for memory bridge added"
+        - "Performance test baselines established"
+    - id: B6
+      title: "Swarm algorithm enhancement"
+      rationale: "Adaptive parameters and multiple strategies improve optimization effectiveness"
+      effort: L
+      risk: M
+      depends: [B1]
+      acceptance:
+        - "PSO adaptive inertia schedule implemented"
+        - "ACO parameter tuning capabilities added"
+        - "Algorithm selection strategies documented"
+    - id: B7
+      title: "Consensus mechanism depth"
+      rationale: "Robust Byzantine fault tolerance ensures system reliability"
+      effort: L
+      risk: H
+      depends: [B1]
+      acceptance:
+        - "BFT implementation enhanced with configurable fault tolerance"
+        - "RAFT leader election optimization completed"
+        - "Consensus decision audit trails implemented"
+    - id: B8
+      title: "CLI compatibility validation"
+      rationale: "Ensure existing user workflows remain functional during system evolution"
+      effort: S
+      risk: L
+      depends: [B1, B2, B5]
+      acceptance:
+        - "All existing CLI commands preserve functionality"
+        - "Regression tests prevent breaking changes"
+        - "User experience remains consistent"
+    - id: B9
+      title: "Documentation decomposition"
+      rationale: "Modular documentation supports development and maintenance"
+      effort: M
+      risk: L
+      depends: [B1, B2, B3, B4]
+      acceptance:
+        - "Complete docs tree under /docs with 10 focused documents"
+        - "API documentation generated from code"
+        - "User guides and examples updated"
+    - id: B10
+      title: "Release automation pipeline"
+      rationale: "Automated deployment reduces manual errors and cycle time"
+      effort: M
+      risk: M
+      depends: [B5, B8]
+      acceptance:
+        - "Semantic versioning rules enforced automatically"
+        - "CI/CD pipeline includes testing, security scanning, performance benchmarking"
+        - "Changelog generation automated with proper sections"
+    - id: B11
+      title: "Python environment alignment"
+      rationale: "Consistent tooling and dependencies across TypeScript and Python components"
+      effort: S
+      risk: L
+      depends: [B2]
+      acceptance:
+        - "Python requirements.txt synchronized with package.json equivalents"
+        - "Development environment setup documented"
+        - "Cross-language testing capabilities established"
+    - id: B12
+      title: "Performance monitoring integration"
+      rationale: "Real-time performance insights enable proactive optimization"
+      effort: M
+      risk: M
+      depends: [B3, B6, B7]
+      acceptance:
+        - "Performance metrics integrated with telemetry system"
+        - "Alerting thresholds configured for critical metrics"
+        - "Performance regression detection automated"
 refactor_proposals:
   - id: RP1
     current_structure: ["CodexSynapticSystem (monolith)"]
@@ -97,19 +216,75 @@ algorithms:
     pso:
       required_params: ["swarmSize", "inertia", "cognitiveCoeff", "socialCoeff", "maxIters"]
       enhancements:
-        - "Adaptive inertia schedule"
+        - "Adaptive inertia schedule with linear or exponential decay"
+        - "Dynamic boundary constraints based on search space exploration"
+        - "Multi-objective optimization with Pareto frontier tracking"
+      parameter_ranges:
+        swarmSize: [10, 100]
+        inertia: [0.1, 0.9]
+        cognitiveCoeff: [0.5, 2.5]
+        socialCoeff: [0.5, 2.5]
+        maxIters: [100, 2000]
     aco:
       required_params: ["antCount", "evaporationRate", "pheromoneInit", "alpha", "beta"]
+      enhancements:
+        - "Elitist ant selection for improved convergence"
+        - "Dynamic pheromone bounds to prevent stagnation"
+        - "Local search integration for solution refinement"
+      parameter_ranges:
+        antCount: [10, 50]
+        evaporationRate: [0.01, 0.3]
+        pheromoneInit: [0.1, 1.0]
+        alpha: [0.5, 3.0]
+        beta: [1.0, 5.0]
+    flocking:
+      required_params: ["boidCount", "separationWeight", "alignmentWeight", "cohesionWeight"]
+      enhancements:
+        - "Obstacle avoidance with dynamic path planning"
+        - "Predator-prey dynamics for competitive scenarios"
+        - "Hierarchical flocking with leader selection"
+      parameter_ranges:
+        boidCount: [20, 200]
+        separationWeight: [0.5, 2.0]
+        alignmentWeight: [0.5, 2.0]
+        cohesionWeight: [0.5, 2.0]
 consensus:
   algorithms:
     - name: "raft"
-      metrics: ["election_time_ms", "commit_latency_ms"]
+      description: "Leader-based consensus with log replication"
+      metrics: ["election_time_ms", "commit_latency_ms", "log_replication_rate"]
+      enhancements:
+        - "Dynamic leader election timeout based on network conditions"
+        - "Batch log entry processing for improved throughput"
+        - "Snapshot compression and streaming for large state transfers"
+      fault_tolerance: "Crash failures up to (n-1)/2 nodes"
     - name: "bft"
-      metrics: ["round_trip_ms", "fault_tolerance_ratio"]
+      description: "Byzantine fault tolerant consensus for adversarial environments"
+      metrics: ["round_trip_ms", "fault_tolerance_ratio", "view_change_frequency"]
+      enhancements:
+        - "Optimistic execution with rollback capability"
+        - "Threshold signatures for message authentication"
+        - "Dynamic fault tolerance adjustment based on detected Byzantine nodes"
+      fault_tolerance: "Byzantine failures up to (n-1)/3 nodes"
+    - name: "pow"
+      description: "Proof of Work consensus for computational resource verification"
+      metrics: ["hash_rate", "difficulty_adjustment_interval", "block_time_ms"]
+      enhancements:
+        - "Adaptive difficulty adjustment for stable block times"
+        - "Memory-hard hash functions to prevent ASIC dominance"
+      fault_tolerance: "Majority computational power required for attacks"
+    - name: "pos"
+      description: "Proof of Stake consensus for energy-efficient validation"
+      metrics: ["stake_distribution", "validator_uptime", "slash_events"]
+      enhancements:
+        - "Delegated staking with reward distribution"
+        - "Slashing conditions for malicious behavior detection"
+      fault_tolerance: "Majority stake required for attacks"
 memory_bridge_spec:
   interface:
     methods:
       - name: putMemory
+        description: "Store or update a textual memory with optional asynchronous embedding"
         input:
           namespace: "string"
           text: "string"
@@ -122,34 +297,202 @@ memory_bridge_spec:
           - "RETRYABLE"
           - "NON_RETRYABLE"
       - name: semanticQuery
+        description: "Perform semantic search across stored memories using vector similarity"
         input:
           namespace: "string"
           query: "string"
           k: "optional|number"
         output:
           results: "array<MemoryHit>"
+        errors:
+          - "QUERY_TIMEOUT"
+          - "INVALID_NAMESPACE"
+      - name: reconcile
+        description: "Resolve divergence between TypeScript SQLite and Python ChromaDB stores"
+        input:
+          namespace: "string"
+          strategy: "enum[ts-wins|py-wins|merge]"
+        output:
+          actions: "array<{id: string, action: enum[add|update|delete|noop]}>"
+        errors:
+          - "RECONCILIATION_FAILED"
+          - "STRATEGY_NOT_SUPPORTED"
+      - name: getMemoryById
+        description: "Retrieve specific memory entry by identifier"
+        input:
+          namespace: "string"
+          id: "string"
+        output:
+          memory: "MemoryEntry|null"
+        errors:
+          - "MEMORY_NOT_FOUND"
+      - name: deleteMemory
+        description: "Remove memory entry from both stores"
+        input:
+          namespace: "string"
+          id: "string"
+        output:
+          deleted: "boolean"
+        errors:
+          - "DELETE_FAILED"
+  data_types:
+    MemoryHit:
+      id: "string"
+      text: "string"
+      metadata: "object"
+      similarity_score: "number"
+      timestamp: "ISO8601"
+    MemoryEntry:
+      id: "string"
+      namespace: "string"
+      text: "string"
+      metadata: "object"
+      created_at: "ISO8601"
+      updated_at: "ISO8601"
+      vectorized: "boolean"
 telemetry:
   events:
     - name: agent.lifecycle
-      fields: [agentId, type, state_from, state_to, ts]
+      fields: [agentId, type, state_from, state_to, transition_reason, resource_usage, ts]
+      description: "Agent state transitions and resource consumption tracking"
     - name: swarm.iteration
-      fields: [swarmId, algo, iteration, convergenceScore, bestFitness, ts]
+      fields: [swarmId, algo, iteration, convergenceScore, bestFitness, parameters, ts]
+      description: "Swarm optimization progress and convergence metrics"
+    - name: consensus.proposal
+      fields: [proposalId, type, votes_for, votes_against, quorum_reached, decision_time_ms, ts]
+      description: "Consensus decision tracking with voting results"
+    - name: memory.bridge.sync
+      fields: [namespace, sync_strategy, conflicts_resolved, sync_duration_ms, status, ts]
+      description: "Memory bridge synchronization events and conflict resolution"
+    - name: mesh.topology.change
+      fields: [nodeId, change_type, connections_added, connections_removed, topology_health, ts]
+      description: "Neural mesh topology updates and connectivity changes"
+    - name: security.policy.violation
+      fields: [agent_id, policy_type, violation_details, severity, action_taken, ts]
+      description: "Security policy violations and enforcement actions"
+    - name: task.execution
+      fields: [taskId, agentId, task_type, duration_ms, success, error_type, resource_usage, ts]
+      description: "Task execution tracking with performance and error details"
   metrics:
-    gauges: [agent.active, mesh.node.count]
-    counters: [task.completed, task.failed, security.violations]
-    histograms: [consensus.decision_time_ms, swarm.convergence_iterations]
+    gauges: 
+      - name: agent.active
+        description: "Number of currently active agents"
+      - name: mesh.node.count
+        description: "Total nodes in neural mesh"
+      - name: memory.bridge.sync_lag_ms
+        description: "Current synchronization lag between TS and Python stores"
+      - name: consensus.active_proposals
+        description: "Number of consensus proposals awaiting decision"
+    counters:
+      - name: task.completed
+        labels: [agent_type, task_type, success]
+        description: "Total completed tasks with success/failure breakdown"
+      - name: task.failed
+        labels: [agent_type, error_type]
+        description: "Failed task count by agent and error type"
+      - name: security.violations
+        labels: [policy_type, severity]
+        description: "Security policy violations by type and severity"
+      - name: memory.bridge.operations
+        labels: [operation_type, namespace, success]
+        description: "Memory bridge operations with success/failure tracking"
+    histograms:
+      - name: consensus.decision_time_ms
+        description: "Time distribution for consensus decision making"
+        buckets: [10, 50, 100, 500, 1000, 5000, 10000]
+      - name: swarm.convergence_iterations
+        description: "Iteration count distribution for swarm convergence"
+        buckets: [10, 25, 50, 100, 250, 500, 1000]
+      - name: task.execution_time_ms
+        description: "Task execution time distribution"
+        buckets: [100, 500, 1000, 5000, 10000, 30000, 60000]
+      - name: memory.bridge.query_latency_ms
+        description: "Memory bridge query response time distribution"
+        buckets: [1, 5, 10, 25, 50, 100, 250, 500]
 security:
   threats:
     - id: T1
       name: "Arbitrary task execution"
-      mitigation: ["Task allowlist", "Sandbox policy"]
+      description: "Malicious agents could execute unauthorized system commands"
+      severity: "HIGH"
+      mitigation: 
+        - "Task allowlist with predefined safe operations"
+        - "Sandbox policy enforcement for all agent execution"
+        - "Code injection detection and prevention"
+      validation_rules:
+        - "task_command_max_length: 4096"
+        - "allowed_commands: [read, write, compute, query]"
     - id: T2
       name: "Resource exhaustion"
-      mitigation: ["Iteration caps", "CPU quota"]
+      description: "Agents consuming excessive CPU, memory, or network resources"
+      severity: "MEDIUM"
+      mitigation: 
+        - "Per-agent resource quotas with enforcement"
+        - "Iteration caps for optimization algorithms"
+        - "Memory usage monitoring and cleanup"
+      validation_rules:
+        - "max_agent_memory_mb: 512"
+        - "max_swarm_iterations: 1000"
+        - "cpu_quota_percent: 25"
+    - id: T3
+      name: "Memory bridge data corruption"
+      description: "Inconsistent data between TypeScript SQLite and Python ChromaDB"
+      severity: "HIGH"
+      mitigation:
+        - "Checksum validation for all memory operations"
+        - "Atomic transaction support with rollback capability"
+        - "Regular consistency verification and auto-healing"
+      validation_rules:
+        - "checksum_algorithm: sha256"
+        - "consistency_check_interval_ms: 300000"
+        - "max_divergence_threshold: 100"
+    - id: T4
+      name: "Consensus manipulation"
+      description: "Malicious agents could manipulate voting or proposal processes"
+      severity: "HIGH"
+      mitigation:
+        - "Byzantine fault tolerance with configurable fault ratio"
+        - "Agent identity verification with certificate-based auth"
+        - "Proposal validation and sanitization"
+      validation_rules:
+        - "max_byzantine_fault_ratio: 0.33"
+        - "proposal_signature_required: true"
+        - "voting_timeout_ms: 30000"
+    - id: T5
+      name: "Neural mesh topology attacks"
+      description: "Adversarial modification of mesh connections to isolate nodes"
+      severity: "MEDIUM"
+      mitigation:
+        - "Topology change authorization with consensus approval"
+        - "Connection health monitoring and automatic recovery"
+        - "Mesh topology validation against known good states"
+      validation_rules:
+        - "topology_nodes_max: 256"
+        - "min_node_connections: 2"
+        - "topology_change_quorum: 0.51"
+    - id: T6
+      name: "Telemetry data exfiltration"
+      description: "Unauthorized access to sensitive system metrics and events"
+      severity: "MEDIUM"
+      mitigation:
+        - "Telemetry data encryption in transit and at rest"
+        - "Access control for telemetry endpoints"
+        - "Sensitive data sanitization in telemetry output"
+      validation_rules:
+        - "telemetry_encryption: aes-256-gcm"
+        - "telemetry_retention_days: 30"
+        - "pii_scrubbing_enabled: true"
   policies:
     validation:
       task_command_max_length: 4096
       topology_nodes_max: 256
+      max_agent_memory_mb: 512
+      max_consensus_proposals: 10
+      telemetry_retention_days: 30
+    enforcement:
+      policy_violation_action: "quarantine"
+      escalation_threshold: 3
+      auto_remediation_enabled: true
 cli_validation:
   exit_codes:
     success: 0
@@ -176,20 +519,66 @@ release_rules:
   changelog_sections: ["Added", "Changed", "Fixed", "Security"]
 sprints:
   - sprint: 1
-    goals: ["Boundaries mapped", "Memory bridge spec v1", "Telemetry schema draft"]
-    exit_criteria: ["Backlog B1..B5 accepted"]
+    duration_weeks: 2
+    goals: 
+      - "Module boundaries mapped and documented"
+      - "Memory bridge spec v1 completed with interface contracts"
+      - "Telemetry schema draft with comprehensive event definitions"
+      - "Security threat model baseline established"
+    exit_criteria: 
+      - "Backlog items B1-B5 accepted and verified"
+      - "Architecture documentation shows clear modular boundaries"
+      - "Memory bridge interface validates against schema"
+    deliverables:
+      - "Module boundary documentation"
+      - "Enhanced MEMORY_BRIDGE_SPEC.md"
+      - "TELEMETRY_SCHEMA.md with complete event definitions"
+      - "SECURITY_THREATS.md with ≥5 documented threats"
   - sprint: 2
-    goals: ["Bridge adapter prototype", "Initial telemetry emitters", "Threat model baseline"]
-    exit_criteria: ["Memory sync integration test passes"]
+    duration_weeks: 3
+    goals: 
+      - "Bridge adapter prototype with reconciliation strategies"
+      - "Initial telemetry emitters integrated with system components"
+      - "Threat model baseline with mitigation implementations"
+      - "Enhanced swarm algorithms with adaptive parameters"
+    exit_criteria: 
+      - "Memory sync integration test passes with <100ms latency"
+      - "Telemetry events captured across all major system components"
+      - "Security policies enforced with violation detection"
+    deliverables:
+      - "Working memory bridge implementation"
+      - "Telemetry integration in core system components"
+      - "Security policy enforcement mechanisms"
+      - "Enhanced PSO and ACO algorithm implementations"
   - sprint: 3
-    goals: ["Swarm param refinement", "Docs decomposition", "Release automation script"]
-    exit_criteria: ["Docs tree merged", "Semantic version gate active"]
+    duration_weeks: 2
+    goals: 
+      - "Swarm parameter refinement with performance optimization"
+      - "Documentation decomposition into modular structure"
+      - "Release automation script with semantic versioning"
+      - "CLI compatibility validation with regression tests"
+    exit_criteria: 
+      - "Documentation tree merged under /docs with 10 focused documents"
+      - "Semantic version gate active with automated changelog"
+      - "All existing CLI functionality preserved"
+    deliverables:
+      - "Complete /docs structure with modular documentation"
+      - "CI/CD pipeline with automated testing and deployment"
+      - "CLI regression test suite"
+      - "Performance benchmarking and optimization reports"
 acceptance_criteria:
-  - "Backlog items enumerated with acceptance arrays"
-  - "Memory bridge methods align with interface spec"
-  - "≥5 security threats with mitigations"
-  - "Telemetry events + metrics mapped to focus areas"
-  - "Docs plan adopted under /docs"
+  - "Backlog items B1-B12 enumerated with detailed acceptance arrays and effort/risk assessment"
+  - "Memory bridge methods align with interface spec including reconciliation strategies"
+  - "Minimum 6 security threats documented with specific mitigations and validation rules"
+  - "Telemetry events and metrics comprehensively mapped to all focus areas (agent, swarm, consensus, memory, mesh, security)"
+  - "Documentation plan adopted under /docs with 10 modular documents covering all system aspects"
+  - "YAML-first output validated with lossless YAML↔JSON conversion capability"
+  - "Architecture modularization plan documented without breaking existing CLI functionality"
+  - "Testing strategy achieves >75% statement coverage and >65% branch coverage"
+  - "Release automation includes semantic versioning, changelog generation, and CI/CD pipeline"
+  - "All seed markdown files updated in .codex-improvement/ directory"
+  - "System maintains backward compatibility with existing agent interfaces and CLI commands"
+  - "Performance baselines established for swarm convergence and consensus decision times"
 fallback_policy:
   yaml_primary: true
   json_fallback: true
