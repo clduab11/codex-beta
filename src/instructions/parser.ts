@@ -338,7 +338,7 @@ export class InstructionParser {
   /**
    * Create empty context for repositories without AGENTS.md files
    */
-  private createEmptyContext(rootPath: string): InstructionContext {
+  private createEmptyContext(_rootPath: string): InstructionContext {
     const agentDirectives = this.getDefaultDirectives();
     const contextData = JSON.stringify({ agentDirectives, metadata: [], precedenceChain: [] });
     const contextHash = createHash('sha256').update(contextData).digest('hex');

@@ -28,7 +28,7 @@ import type {
   ContextLogEntry
 } from '../types/codex-context.js';
 import { RetryManager } from '../core/errors.js';
-import { HiveMindYamlFormatter, YamlFeedforwardFilter, EndpointCapabilities } from '../utils/yaml-output.js';
+import { HiveMindYamlFormatter } from '../utils/yaml-output.js';
 import { InstructionParser } from '../instructions/index.js';
 import { RoutingPolicyService } from '../router/index.js';
 

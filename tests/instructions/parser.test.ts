@@ -4,8 +4,7 @@ import { dirname, join } from 'node:path';
 import { describe, expect, it, beforeEach, afterEach } from 'vitest';
 import { 
   InstructionParser, 
-  InstructionPrecedence,
-  type InstructionContext 
+  InstructionPrecedence
 } from '../../src/instructions/index.js';
 
 const writeFile = (filePath: string, content: string) => {

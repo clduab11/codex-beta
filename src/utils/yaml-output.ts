@@ -80,7 +80,7 @@ export class YamlFeedforwardFilter {
   static detectCapabilities(
     acceptHeader?: string,
     contentTypes?: string[],
-    metadata?: Record<string, any>
+    _metadata?: Record<string, any>
   ): EndpointCapabilities {
     const allContentTypes = [
       ...(acceptHeader ? acceptHeader.split(',').map(t => t.trim()) : []),
