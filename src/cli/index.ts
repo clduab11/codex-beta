@@ -120,8 +120,6 @@ function readFileContent(filePath: string): string {
   const isYaml = filePath.endsWith('.yaml') || filePath.endsWith('.yml');
   
   if (isYaml) {
-    // For YAML files, optionally convert to JSON for endpoints that don't support YAML
-    // Detect if we need conversion based on the context
     console.log(chalk.gray(`📄 Read YAML file: ${filePath}`));
   } else {
     console.log(chalk.gray(`📄 Read file: ${filePath}`));
@@ -564,7 +562,7 @@ routerCmd
       const request = {
         prompt,
         context: options.context ? {
-          fileContext: readFileContent(options.context)
+          fileContext: JSON.stringify(parseFileContent(options.context))
         } : undefined,
         constraints: {
           excludeAgents: options.exclude ? options.exclude.split(',').map((s: string) => s.trim()) : undefined,
