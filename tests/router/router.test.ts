@@ -1,6 +1,6 @@
 import * as fs from 'node:fs';
 import { tmpdir } from 'node:os';
-import { dirname, join } from 'node:path';
+import { join } from 'node:path';
 import { describe, expect, it, beforeEach, afterEach } from 'vitest';
 import { 
   RoutingPolicyService,
