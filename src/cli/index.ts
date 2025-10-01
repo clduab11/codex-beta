@@ -28,9 +28,11 @@ import type {
   ContextLogEntry
 } from '../types/codex-context.js';
 import { RetryManager } from '../core/errors.js';
-import { HiveMindYamlFormatter } from '../utils/yaml-output.js';
+import { HiveMindYamlFormatter, YamlFeedforwardFilter, EndpointCapabilities } from '../utils/yaml-output.js';
 import { InstructionParser } from '../instructions/index.js';
 import { RoutingPolicyService } from '../router/index.js';
+import { readFileSync } from 'fs';
+import * as yaml from 'js-yaml';
 
 const program = new Command();
 const session = CliSession.getInstance();
@@ -78,6 +80,54 @@ function parseJsonInput(value: string, label: string): any {
   } catch {
     throw new Error(`${label} must be valid JSON`);
   }
+}
+
+/**
+ * Parse file content supporting both YAML and JSON formats
+ * YAML files are automatically converted to JSON for compatibility
+ */
+function parseFileContent(filePath: string): any {
+  const content = readFileSync(filePath, 'utf8');
+  const isYaml = filePath.endsWith('.yaml') || filePath.endsWith('.yml');
+  
+  if (isYaml) {
+    try {
+      // Parse YAML content
+      const parsed = yaml.load(content);
+      console.log(chalk.gray(`📄 Parsed YAML file: ${filePath}`));
+      return parsed;
+    } catch (error) {
+      throw new Error(`Failed to parse YAML file ${filePath}: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  } else {
+    // Parse as JSON
+    try {
+      const parsed = JSON.parse(content);
+      console.log(chalk.gray(`📄 Parsed JSON file: ${filePath}`));
+      return parsed;
+    } catch (error) {
+      throw new Error(`Failed to parse JSON file ${filePath}: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  }
+}
+
+/**
+ * Read file content as string, supporting both YAML and JSON
+ * Returns the raw content without parsing
+ */
+function readFileContent(filePath: string): string {
+  const content = readFileSync(filePath, 'utf8');
+  const isYaml = filePath.endsWith('.yaml') || filePath.endsWith('.yml');
+  
+  if (isYaml) {
+    // For YAML files, optionally convert to JSON for endpoints that don't support YAML
+    // Detect if we need conversion based on the context
+    console.log(chalk.gray(`📄 Read YAML file: ${filePath}`));
+  } else {
+    console.log(chalk.gray(`📄 Read file: ${filePath}`));
+  }
+  
+  return content;
 }
 
 function renderAgentTable(agents: AgentMetadata[]): void {
@@ -502,7 +552,7 @@ routerCmd
   .command('evaluate')
   .argument('<prompt>', 'Prompt to evaluate for routing')
   .description('Evaluate routing for a given prompt')
-  .option('-c, --context <file>', 'Context file to include')
+  .option('-c, --context <file>', 'Context file to include (YAML or JSON)')
   .option('-e, --exclude <agents>', 'Comma-separated list of agents to exclude')
   .option('-p, --prefer <agents>', 'Comma-separated list of preferred agents')
   .option('-v, --verbose', 'Show detailed evaluation information')
@@ -514,7 +564,7 @@ routerCmd
       const request = {
         prompt,
         context: options.context ? {
-          fileContext: require('fs').readFileSync(options.context, 'utf8')
+          fileContext: readFileContent(options.context)
         } : undefined,
         constraints: {
           excludeAgents: options.exclude ? options.exclude.split(',').map((s: string) => s.trim()) : undefined,
@@ -553,7 +603,7 @@ routerCmd
   .command('rules')
   .description('Manage routing rules')
   .option('-l, --list', 'List all routing rules')
-  .option('-a, --add <file>', 'Add rule from JSON file')
+  .option('-a, --add <file>', 'Add rule from YAML or JSON file')
   .option('-d, --delete <id>', 'Delete rule by ID')
   .option('-e, --enable <id>', 'Enable rule by ID')
   .option('-x, --disable <id>', 'Disable rule by ID')
@@ -584,7 +634,7 @@ routerCmd
           console.log('');
         });
       } else if (options.add) {
-        const ruleData = JSON.parse(require('fs').readFileSync(options.add, 'utf8'));
+        const ruleData = parseFileContent(options.add);
         const rule = await router.addRule(ruleData);
         console.log(chalk.green(`✅ Rule added: ${rule.name} (${rule.id})`));
       } else if (options.delete) {

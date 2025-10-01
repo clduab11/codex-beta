@@ -1,0 +1,35 @@
+# Sample YAML Routing Rule for Codex-Synaptic
+# This demonstrates the YAML-first approach for defining routing rules
+# YAML provides better readability and structure compared to JSON
+
+id: ml-model-trainer
+name: ML Model Training Rule
+description: Route machine learning model training requests to specialized ML workers
+target: code_worker
+precedence: 95
+confidence: 0.88
+
+# Conditions define when this rule should be applied
+conditions:
+  keywords:
+    - train
+    - model
+    - machine learning
+    - neural network
+    - tensorflow
+    - pytorch
+  patterns:
+    - "train.*model"
+    - "build.*ml"
+    - "create.*neural.*network"
+
+# Metadata for rule management
+metadata:
+  enabled: true
+  author: copilot
+  version: "1.0.0"
+  created: "2025-01-30T00:00:00Z"
+  tags:
+    - ml
+    - training
+    - specialized
